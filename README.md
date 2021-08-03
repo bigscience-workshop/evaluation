@@ -1,7 +1,7 @@
 # BigScience Evaluation
 Code and data for the [BigScience Evaluation WG](https://bigscience.huggingface.co/en/#!pages/working-groups.md).
 
-# Basic requirements
+## Basic requirements
 - Python 3.8
 - [virtualenv](https://virtualenv.pypa.io/en/latest/)
 
@@ -20,4 +20,13 @@ source venv/bin/activate
 ### Install Requirements
 ```shell
 python3 -m pip install -r requirements.txt
+```
+
+## Run evaluation scripts
+### Simple Benchmark
+A [simple benchmark](https://github.com/bigscience-workshop/Megatron-DeepSpeed/issues/22) that includes 
+[WMT](https://huggingface.co/datasets/wmt19) and [TyDi QA](https://huggingface.co/datasets/tydiqa)
+E.g.
+```shell
+python -m evaluation.scripts.simple_benchmark  --model_name_or_path=gpt-2
 ```
