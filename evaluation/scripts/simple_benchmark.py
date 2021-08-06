@@ -33,6 +33,14 @@ def main():
 
     logger.info('Beginning evaluation')
 
+    # Load model & tokenizer
+    #tokenizer = GPT2Tokenizer.from_pretrained("gpt2", padding_side="left")
+    #tokenizer.pad_token = tokenizer.bos_token
+
+    # Load dataset
+    #target_langs = ["english"]
+    #data = load_dataset("tydiqa", "secondary_task", split="validation")
+    #dataset = TyDiQADataset(data, tm , tokenizer, target_langs)
 
 if __name__ == "__main__":
     main()
