@@ -34,10 +34,15 @@ class TyDiQADataset(Dataset):
                     context  = sample["context"],
                     question = sample["question"],
                 )
-                prompt = tokenizer.bos_token + " " + prompt.strip()  # Remove trailing white space and newline
+                prompt = prompt.strip()  # Remove trailing white space and newline
 
                 # Tokenize and construct this sample
-                inputs = tokenizer(prompt, max_length=tokenizer.model_max_length,  padding="max_length") 
+                inputs = tokenizer(
+                    prompt,
+                    max_length=tokenizer.model_max_length,
+                    padding="max_length",
+                    return_tensors='pt',
+                )
                 label_ids = [tokenizer(answer)["input_ids"] for answer in sample["answers"]["text"]]
                 self.items.append(
                     {
