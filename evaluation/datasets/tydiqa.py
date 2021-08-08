@@ -39,8 +39,7 @@ class TyDiQADataset(Dataset):
                 # Tokenize and construct this sample
                 inputs = tokenizer(
                     prompt,
-                    max_length=tokenizer.model_max_length,
-                    padding="max_length",
+                    padding=True,
                     return_tensors='pt',
                 )
                 label_ids = [tokenizer(answer)["input_ids"] for answer in sample["answers"]["text"]]
@@ -51,7 +50,7 @@ class TyDiQADataset(Dataset):
                         "input_ids": inputs["input_ids"],
                         "attention_mask": inputs["attention_mask"],
                         "label_ids": label_ids,
-                        "input_len": sum(inputs["attention_mask"]),
+                        "input_len": inputs["attention_mask"].shape[1],
                         "answers": sample["answers"],
                     }
                 )
@@ -60,12 +59,4 @@ class TyDiQADataset(Dataset):
         return len(self.items)
     
     def __getitem__(self, index):
-        item = self.items[index]
-        return {
-            "prompt": item["prompt"],
-            "lang": item["lang"],
-            "input_ids": torch.tensor(item["input_ids"]),
-            "attention_mask": torch.tensor(item["attention_mask"]),
-            "label_ids": item["label_ids"],
-        }
-
+        return self.items[index]

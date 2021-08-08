@@ -3,6 +3,7 @@ from dataclasses import dataclass, field
 from typing import Optional
 
 from datasets import load_dataset
+import torch
 from transformers import (
     HfArgumentParser,
     AutoTokenizer,
@@ -12,6 +13,8 @@ from transformers import (
 from evaluation.datasets.tydiqa import TyDiQADataset
 
 logger = logging.getLogger(__name__)
+
+torch_device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 @dataclass
@@ -45,34 +48,37 @@ def main():
     )
     logger.setLevel(logging.INFO)
 
-    logger.info('Beginning evaluation')
+    logger.info("Beginning evaluation")
 
     # Load model & tokenizer
-    logger.info('Loading model...')
+    logger.info("Loading model...")
     tokenizer = AutoTokenizer.from_pretrained(eval_args.tokenizer_name or eval_args.model_name_or_path)
-    tokenizer.pad_token = tokenizer.bos_token
-    model = AutoModelForCausalLM.from_pretrained(eval_args.model_name_or_path, pad_token_id=tokenizer.eos_token)
+    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"
 
+    model = AutoModelForCausalLM.from_pretrained(eval_args.model_name_or_path, pad_token_id=tokenizer.eos_token)
+    model.config.pad_token_id = model.config.eos_token_id
     model.resize_token_embeddings(len(tokenizer))
+    model.to(torch_device)
 
     # Load dataset
-    logger.info('Loading TyDiQA...')
+    logger.info("Loading TyDiQA...")
     target_langs = ["english"]
     data = load_dataset("tydiqa", "secondary_task", split="validation")
     dataset = TyDiQADataset(data, tokenizer, target_langs)
 
     for sample in dataset:
         output = model.generate(
-            input_ids=sample['input_ids'],
-            attention_mask=sample['attention_mask'],
-            max_length=tokenizer.model_max_length + 1,
-            num_beams=4,
-            early_stopping=True,
+            input_ids=sample["input_ids"].to(torch_device),
+            attention_mask=sample["attention_mask"].to(torch_device),
+            max_length=sample["input_len"] + 15,
         )
-        prompt_len = len(sample['prompt'])
+
+        prompt_len = len(sample["prompt"])
         decoded_output = tokenizer.decode(output[0], skip_special_tokens=True)
         answer = decoded_output[prompt_len:]
         print(answer)
+
 
 if __name__ == "__main__":
     main()
