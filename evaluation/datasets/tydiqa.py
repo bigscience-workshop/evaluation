@@ -1,9 +1,8 @@
 # Module for any additional processing required for the TyDi QA dataset
 # HuggingFace dataset link: https://huggingface.co/datasets/tydiqa
 
-import torch
-from torch.utils.data import Dataset
 from jinja2 import Template
+from torch.utils.data import Dataset
 
 TEMPLATE = Template(
     """
@@ -42,16 +41,14 @@ class TyDiQADataset(Dataset):
                     padding=True,
                     return_tensors='pt',
                 )
-                label_ids = [tokenizer(answer)["input_ids"] for answer in sample["answers"]["text"]]
                 self.items.append(
                     {
                         "prompt": prompt,
                         "lang": lang,
                         "input_ids": inputs["input_ids"],
                         "attention_mask": inputs["attention_mask"],
-                        "label_ids": label_ids,
                         "input_len": inputs["attention_mask"].shape[1],
-                        "answers": sample["answers"],
+                        "target_answer": sample["answers"]['text'][0].lower(),
                     }
                 )
     

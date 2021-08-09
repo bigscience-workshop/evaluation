@@ -2,8 +2,9 @@ import logging
 from dataclasses import dataclass, field
 from typing import Optional
 
-from datasets import load_dataset
 import torch
+from datasets import load_dataset
+from tqdm import tqdm
 from transformers import (
     HfArgumentParser,
     AutoTokenizer,
@@ -67,7 +68,8 @@ def main():
     data = load_dataset("tydiqa", "secondary_task", split="validation")
     dataset = TyDiQADataset(data, tokenizer, target_langs)
 
-    for sample in dataset:
+    correct_tydiqa_answer = 0
+    for sample in tqdm(dataset):
         output = model.generate(
             input_ids=sample["input_ids"].to(torch_device),
             attention_mask=sample["attention_mask"].to(torch_device),
@@ -76,8 +78,12 @@ def main():
 
         prompt_len = len(sample["prompt"])
         decoded_output = tokenizer.decode(output[0], skip_special_tokens=True)
-        answer = decoded_output[prompt_len:]
-        print(answer)
+        predicted_answer = decoded_output[prompt_len:]
+        target_answer = sample["target_answer"]
+        prediction_contains_target_answer = target_answer in predicted_answer.lower()
+        correct_tydiqa_answer += prediction_contains_target_answer
+    correct_tydiqa_percentage = correct_tydiqa_answer / len(dataset) * 100
+    print(f"{correct_tydiqa_percentage}% of samples answered correctly")
 
 
 if __name__ == "__main__":
