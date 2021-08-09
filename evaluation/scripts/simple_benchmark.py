@@ -11,6 +11,7 @@ from transformers import (
     HfArgumentParser,
     AutoTokenizer,
     AutoModelForCausalLM,
+    set_seed,
 )
 
 from evaluation.datasets.tydiqa import TyDiQADataset
@@ -55,6 +56,9 @@ def main():
         datefmt="%m/%d/%Y %H:%M:%S",
     )
     logger.setLevel(logging.INFO)
+
+    # set random seed
+    set_seed(42)
 
     logger.info("Beginning evaluation")
 
