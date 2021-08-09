@@ -1,6 +1,8 @@
 import logging
 from dataclasses import dataclass, field
+from datetime import datetime
 from typing import Optional
+import os
 
 import torch
 from datasets import load_dataset
@@ -12,6 +14,7 @@ from transformers import (
 )
 
 from evaluation.datasets.tydiqa import TyDiQADataset
+from evaluation.utils.io import save_json
 
 logger = logging.getLogger(__name__)
 
@@ -34,6 +37,10 @@ class EvaluationArguments:
     tokenizer_name: Optional[str] = field(
         default=None,
         metadata={"help": "Pretrained tokenizer name or path if not the same as model_name."}
+    )
+    output_dir: Optional[str] = field(
+        default="outputs",
+        metadata={"help": "Directory for saving evaluation outputs."}
     )
 
 
@@ -63,7 +70,7 @@ def main():
     model.to(torch_device)
 
     # Load dataset
-    logger.info("Loading TyDiQA...")
+    logger.info("Benchmarking TyDiQA...")
     target_langs = ["english"]
     data = load_dataset("tydiqa", "secondary_task", split="validation")
     dataset = TyDiQADataset(data, tokenizer, target_langs)
@@ -82,8 +89,18 @@ def main():
         target_answer = sample["target_answer"]
         prediction_contains_target_answer = target_answer in predicted_answer.lower()
         correct_tydiqa_answer += prediction_contains_target_answer
-    correct_tydiqa_percentage = correct_tydiqa_answer / len(dataset) * 100
-    print(f"{correct_tydiqa_percentage}% of samples answered correctly")
+    tydiqa_metrics = dict(correct_answers_percentage=correct_tydiqa_answer / len(dataset) * 100)
+    logger.info(f"TyDiQA: {tydiqa_metrics['correct_answers_percentage']}% of samples answered correctly")
+
+    # Exporting results
+    if eval_args.output_dir:
+        output_dir = f"{eval_args.output_dir}/{datetime.now().strftime('%y%m%d_%H%M%S')}"
+        if not os.path.isdir(output_dir):
+            os.makedirs(output_dir)
+        # Exporting TyDiQA results
+        tydiqa_filename = f"{output_dir}/tydiqa.json"
+        save_json(tydiqa_metrics, tydiqa_filename)
+        logger.info(f"TyDiQA: result exported to {tydiqa_filename}")
 
 
 if __name__ == "__main__":

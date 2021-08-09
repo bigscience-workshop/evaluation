@@ -133,3 +133,6 @@ dmypy.json
 
 # Jetbrain files
 .idea/
+
+# Outoupt files
+outputs/*
