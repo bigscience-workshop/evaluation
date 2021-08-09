@@ -90,8 +90,9 @@ def main():
         prompt_len = len(sample["prompt"])
         decoded_output = tokenizer.decode(output[0], skip_special_tokens=True)
         predicted_answer = decoded_output[prompt_len:]
-        target_answer = sample["target_answer"]
-        prediction_contains_target_answer = target_answer in predicted_answer.lower()
+        
+        target_answers = sample["target_answer"]
+        prediction_contains_target_answer = any([target_answer in predicted_answer.lower() for target_answer in target_answers])
         correct_tydiqa_answer += prediction_contains_target_answer
     tydiqa_metrics = dict(correct_answers_percentage=correct_tydiqa_answer / len(dataset) * 100)
     logger.info(f"TyDiQA: {tydiqa_metrics['correct_answers_percentage']}% of samples answered correctly")

@@ -48,7 +48,7 @@ class TyDiQADataset(Dataset):
                         "input_ids": inputs["input_ids"],
                         "attention_mask": inputs["attention_mask"],
                         "input_len": inputs["attention_mask"].shape[1],
-                        "target_answer": sample["answers"]['text'][0].lower(),
+                        "target_answer": [ans.lower() for ans in sample["answers"]['text']],
                     }
                 )
     
