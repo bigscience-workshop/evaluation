@@ -43,6 +43,10 @@ class EvaluationArguments:
         default="outputs",
         metadata={"help": "Directory for saving evaluation outputs."}
     )
+    random_seed: Optional[int] = field(
+        default=24,
+        metadata={"help": "Customized random seed"}
+    )
 
 
 def main():
@@ -58,7 +62,7 @@ def main():
     logger.setLevel(logging.INFO)
 
     # set random seed
-    set_seed(42)
+    set_seed(eval_args.random_seed)
 
     logger.info("Beginning evaluation")
 
