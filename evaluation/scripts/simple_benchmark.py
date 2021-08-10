@@ -79,7 +79,7 @@ def main():
     data = load_dataset("tydiqa", "secondary_task", split="validation")
     dataset = TyDiQADataset(data, tokenizer, target_langs)
 
-    correct_tydiqa_answer = 0
+    tydiqa_substring_matches = 0
     for sample in tqdm(dataset):
         output = model.generate(
             input_ids=sample["input_ids"].to(torch_device),
@@ -92,10 +92,10 @@ def main():
         predicted_answer = decoded_output[prompt_len:]
         
         target_answers = sample["target_answer"]
-        prediction_contains_target_answer = any([target_answer in predicted_answer.lower() for target_answer in target_answers])
-        correct_tydiqa_answer += prediction_contains_target_answer
-    tydiqa_metrics = dict(correct_answers_percentage=correct_tydiqa_answer / len(dataset) * 100)
-    logger.info(f"TyDiQA: {tydiqa_metrics['correct_answers_percentage']}% of samples answered correctly")
+        substring_match = any([target_answer in predicted_answer.lower() for target_answer in target_answers])
+        tydiqa_substring_matches += substring_match
+    tydiqa_metrics = dict(substring_matches=tydiqa_substring_matches / len(dataset) * 100)
+    logger.info(f"TyDiQA: {tydiqa_metrics['substring_matches']}% of samples contain substring matches")
 
     # Exporting results
     if eval_args.output_dir:
