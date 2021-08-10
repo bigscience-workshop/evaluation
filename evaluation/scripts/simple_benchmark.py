@@ -88,7 +88,7 @@ def main():
         output = model.generate(
             input_ids=sample["input_ids"].to(torch_device),
             attention_mask=sample["attention_mask"].to(torch_device),
-            max_length=sample["input_len"] + 15,
+            max_length=sample["input_len"] * 2,
         )
 
         prompt_len = len(sample["prompt"])
