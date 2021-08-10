@@ -15,13 +15,16 @@ def main(args):
     tokenizer = AutoTokenizer.from_pretrained(args.model)
     model = AutoModelForCausalLM.from_pretrained(args.model).to(device)
     dataset = WMTEnglishDataset(
-        tokenizer, stride=stride, max_len=model.config.n_positions, pair=args.pair,
+        tokenizer,
+        stride=stride,
+        max_len=model.config.n_positions,
+        pair=args.pair,
     )
     loader = DataLoader(
-        dataset, 
-        batch_size=args.batch_size, 
-        shuffle=False, 
+        dataset,
+        batch_size=args.batch_size,
         num_workers=args.num_workers,
+        shuffle=False,
         drop_last=True,
     )
     log_likelihoods = []
