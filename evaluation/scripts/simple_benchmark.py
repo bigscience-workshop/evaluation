@@ -98,16 +98,17 @@ def main():
         target_answers = sample["target_answer"]
         substring_match = any([target_answer in predicted_answer.lower() for target_answer in target_answers])
         tydiqa_substring_matches += substring_match
-    tydiqa_metrics = dict(substring_matches=tydiqa_substring_matches / len(dataset) * 100)
+    tydiqa_metrics = {
+        "substring_matches": tydiqa_substring_matches / len(dataset) * 100
+    }
     logger.info(f"TyDiQA: {tydiqa_metrics['substring_matches']}% of samples contain substring matches")
 
     # Exporting results
     if eval_args.output_dir:
-        output_dir = f"{eval_args.output_dir}/{datetime.now().strftime('%y%m%d_%H%M%S')}"
-        if not os.path.isdir(output_dir):
-            os.makedirs(output_dir)
+        output_dir = os.path.join(eval_args.output_dir, datetime.now().strftime("%y%m%d_%H%M%S"))
+        os.makedirs(output_dir, exist_ok=True)
         # Exporting TyDiQA results
-        tydiqa_filename = f"{output_dir}/tydiqa.json"
+        tydiqa_filename = os.path.join(output_dir, "tydiqa.json")
         save_json(tydiqa_metrics, tydiqa_filename)
         logger.info(f"TyDiQA: result exported to {tydiqa_filename}")
 
