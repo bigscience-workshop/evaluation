@@ -1,11 +1,25 @@
 import logging
 from dataclasses import dataclass, field
+from datetime import datetime
+from typing import Optional
+import os
 
+import torch
+from datasets import load_dataset
+from tqdm import tqdm
 from transformers import (
     HfArgumentParser,
+    AutoTokenizer,
+    AutoModelForCausalLM,
+    set_seed,
 )
 
+from evaluation.datasets.tydiqa import TyDiQADataset
+from evaluation.utils.io import save_json
+
 logger = logging.getLogger(__name__)
+
+torch_device = "cuda" if torch.cuda.is_available() else "cpu"
 
 
 @dataclass
@@ -13,9 +27,25 @@ class EvaluationArguments:
     """
         Arguments for any adjustable params in this evaluation script
     """
-    model_name_or_path: str = field(
+    model_name_or_path: Optional[str] = field(
         default=None,
         metadata={"help": "The model checkpoint that we want to evaluate, could be name or the path."}
+    )
+    config_name: Optional[str] = field(
+        default=None,
+        metadata={"help": "Pretrained config name or path if not the same as model_name."}
+    )
+    tokenizer_name: Optional[str] = field(
+        default=None,
+        metadata={"help": "Pretrained tokenizer name or path if not the same as model_name."}
+    )
+    output_dir: Optional[str] = field(
+        default="outputs",
+        metadata={"help": "Directory for saving evaluation outputs."}
+    )
+    random_seed: Optional[int] = field(
+        default=24,
+        metadata={"help": "Customized random seed"}
     )
 
 
@@ -31,7 +61,56 @@ def main():
     )
     logger.setLevel(logging.INFO)
 
-    logger.info('Beginning evaluation')
+    # set random seed
+    set_seed(eval_args.random_seed)
+
+    logger.info("Beginning evaluation")
+
+    # Load model & tokenizer
+    logger.info("Loading model...")
+    tokenizer = AutoTokenizer.from_pretrained(eval_args.tokenizer_name or eval_args.model_name_or_path)
+    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"
+
+    model = AutoModelForCausalLM.from_pretrained(eval_args.model_name_or_path, pad_token_id=tokenizer.eos_token)
+    model.config.pad_token_id = model.config.eos_token_id
+    model.resize_token_embeddings(len(tokenizer))
+    model.to(torch_device)
+
+    # Load dataset
+    logger.info("Benchmarking TyDiQA...")
+    target_langs = ["english"]
+    data = load_dataset("tydiqa", "secondary_task", split="validation")
+    dataset = TyDiQADataset(data, tokenizer, target_langs)
+
+    tydiqa_substring_matches = 0
+    for sample in tqdm(dataset):
+        output = model.generate(
+            input_ids=sample["input_ids"].to(torch_device),
+            attention_mask=sample["attention_mask"].to(torch_device),
+            max_length=min(sample["input_len"]*2, model.config.n_positions),
+        )
+
+        prompt_len = len(sample["prompt"])
+        decoded_output = tokenizer.decode(output[0], skip_special_tokens=True)
+        predicted_answer = decoded_output[prompt_len:]
+        
+        target_answers = sample["target_answer"]
+        substring_match = any([target_answer in predicted_answer.lower() for target_answer in target_answers])
+        tydiqa_substring_matches += substring_match
+    tydiqa_metrics = {
+        "substring_matches": tydiqa_substring_matches / len(dataset) * 100
+    }
+    logger.info(f"TyDiQA: {tydiqa_metrics['substring_matches']}% of samples contain substring matches")
+
+    # Exporting results
+    if eval_args.output_dir:
+        output_dir = os.path.join(eval_args.output_dir, datetime.now().strftime("%y%m%d_%H%M%S"))
+        os.makedirs(output_dir, exist_ok=True)
+        # Exporting TyDiQA results
+        tydiqa_filename = os.path.join(output_dir, "tydiqa.json")
+        save_json(tydiqa_metrics, tydiqa_filename)
+        logger.info(f"TyDiQA: result exported to {tydiqa_filename}")
 
 
 if __name__ == "__main__":
