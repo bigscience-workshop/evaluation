@@ -1,8 +1,13 @@
 # Module for any additional processing required for the TyDi QA dataset
 # HuggingFace dataset link: https://huggingface.co/datasets/tydiqa
+from typing import Dict
 
 from jinja2 import Template
 from torch.utils.data import Dataset
+from datasets import load_dataset
+from tqdm import tqdm
+
+from evaluation.tasks.auto_task import AutoTask
 
 TEMPLATE = Template(
     """
@@ -18,6 +23,7 @@ TEMPLATE = Template(
     {{"\n"}}Answer: 
     """
 )
+
 
 class TyDiQADataset(Dataset):
     def __init__(self, data, tokenizer, target_langs):
@@ -57,3 +63,34 @@ class TyDiQADataset(Dataset):
     
     def __getitem__(self, index):
         return self.items[index]
+
+
+class TydiqaSecondaryTask(AutoTask):
+    @staticmethod
+    def get_display_name() -> str:
+        return 'tydiqa_secondary'
+
+    def evaluate(self) -> None:
+        target_langs = ["english"]
+        data = load_dataset("tydiqa", "secondary_task", split="validation")
+        dataset = TyDiQADataset(data, self.tokenizer, target_langs)
+
+        substring_matches = 0
+        for sample in tqdm(dataset, desc=f'Evaluating {self.get_display_name()}'):
+            output = self.model.generate(
+                input_ids=sample["input_ids"].to(self.torch_device),
+                attention_mask=sample["attention_mask"].to(self.torch_device),
+                max_length=min(sample["input_len"] * 2, self.model.config.n_positions),
+            )
+
+            prompt_len = len(sample["prompt"])
+            decoded_output = self.tokenizer.decode(output[0], skip_special_tokens=True)
+            predicted_answer = decoded_output[prompt_len:]
+
+            target_answers = sample["target_answer"]
+            substring_match = any([target_answer in predicted_answer.lower() for target_answer in target_answers])
+            substring_matches += substring_match
+
+        self.metrics = {
+            "substring_matches": substring_matches / len(dataset) * 100
+        }
