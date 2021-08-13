@@ -11,7 +11,7 @@ class WMTEnglishDataset(Dataset):
         wmt = load_dataset("wmt19", pair, split="validation")["translation"]
         text_list = [item["en"] for item in wmt]
         text = " ".join(text_list)
-        input_ids = tokenizer(text, return_tensors="pt").input_ids.squeeze()
+        input_ids = tokenizer(text, return_tensors="pt", verbose=False).input_ids.squeeze()
         self.input_ids = input_ids.unfold(size=max_len, step=stride, dimension=-1)
 
     def __len__(self):
