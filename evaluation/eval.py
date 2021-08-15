@@ -12,7 +12,7 @@ from transformers import (
 )
 import evaluation.tasks  # needed for AutoTask.__subclass__() to work correctly
 from evaluation.tasks.auto_task import AutoTask
-from evaluation import logger
+from evaluation.utils.log import get_logger
 
 
 @dataclass
@@ -58,13 +58,11 @@ def main(args):
     if not args.eval_tasks:
         raise ValueError('Must provide at least one eval task!')
     
-    logger.info("Beginning evaluation")
-
-    # set random seed
-    set_seed(args.random_seed)
-
     # initialize device
     device = torch.device(args.device)
+
+    logger = get_logger()
+    logger.info(f"Beginning evaluation on device {args.device}")
 
     # Load model & tokenizer
     logger.info("Loading model...")
@@ -85,6 +83,7 @@ def main(args):
     for eval_task in args.eval_tasks:
         logger.info(f"Benchmarking {eval_task}...")
         task = AutoTask.from_task_name(eval_task, tokenizer=tokenizer, model=model, device=device)
+        set_seed(args.random_seed)
         task.evaluate()
         task.save_metrics(output_dir, logger)
 
