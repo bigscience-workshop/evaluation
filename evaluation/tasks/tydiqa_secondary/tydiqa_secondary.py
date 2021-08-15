@@ -78,8 +78,8 @@ class TydiqaSecondaryTask(AutoTask):
         substring_matches = 0
         for sample in tqdm(dataset, desc=f'Evaluating {self.get_display_name()}'):
             output = self.model.generate(
-                input_ids=sample["input_ids"].to(self.torch_device),
-                attention_mask=sample["attention_mask"].to(self.torch_device),
+                input_ids=sample["input_ids"].to(self.device),
+                attention_mask=sample["attention_mask"].to(self.device),
                 max_length=min(sample["input_len"] * 2, self.model.config.n_positions),
             )
 
