@@ -33,7 +33,6 @@ class AutoTask(ABC):
         pass
 
     def save_metrics(self, output_dir, logger=None) -> str:
-        # Exporting TyDiQA results
         output_filename = os.path.join(output_dir, f"{self.get_display_name()}.json")
         save_json(self.metrics, output_filename)
 
