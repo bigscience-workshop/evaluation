@@ -26,11 +26,12 @@ TEMPLATE = Template(
 
 
 class TyDiQADataset(Dataset):
-    def __init__(self, data, tokenizer, target_langs):
-        super(TyDiQADataset, self).__init__()
+    def __init__(self, tokenizer, target_langs):
+        super().__init__()
+        tydiqa = load_dataset("tydiqa", "secondary_task", split="validation")
         self.items = []
         
-        for sample_id, sample in enumerate(data):
+        for sample in tydiqa:
             lang = sample["id"].split("-")[0]
             if lang in target_langs:
                 # Filter out samples in languages that are not used during training
@@ -71,9 +72,7 @@ class TydiqaSecondaryTask(AutoTask):
         return 'tydiqa_secondary'
 
     def evaluate(self) -> None:
-        target_langs = ["english"]
-        data = load_dataset("tydiqa", "secondary_task", split="validation")
-        dataset = TyDiQADataset(data, self.tokenizer, target_langs)
+        dataset = TyDiQADataset(self.tokenizer, target_langs=["english"])
 
         substring_matches = 0
         for sample in tqdm(dataset, desc=f'Evaluating {self.get_display_name()}'):
