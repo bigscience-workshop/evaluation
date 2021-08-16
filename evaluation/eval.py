@@ -54,7 +54,10 @@ class EvaluationArguments:
     )
 
 
-def main(args):
+def main():
+    parser = HfArgumentParser(EvaluationArguments)
+    args, = parser.parse_args_into_dataclasses()
+
     if not args.eval_tasks:
         raise ValueError('Must provide at least one eval task!')
     
@@ -89,6 +92,4 @@ def main(args):
 
 
 if __name__ == "__main__":
-    parser = HfArgumentParser(EvaluationArguments)
-    args, = parser.parse_args_into_dataclasses()
-    main(args)
+    main()
