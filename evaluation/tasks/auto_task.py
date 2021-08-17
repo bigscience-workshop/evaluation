@@ -1,27 +1,24 @@
 from abc import ABC, abstractmethod
 import os
 
-import torch
-
 from evaluation.utils.io import save_json
 
 
 class AutoTask(ABC):
-    def __init__(self, tokenizer, model):
+    def __init__(self, tokenizer, model, device):
         self.tokenizer = tokenizer
         self.model = model
-        self.torch_device = "cuda" if torch.cuda.is_available() else "cpu"
+        self.device = device
         self.metrics = {}
 
     @classmethod
-    def from_task_name(cls, task_name: str, tokenizer, model):
+    def from_task_name(cls, task_name: str, tokenizer, model, device):
         all_tasks = cls.__subclasses__()
-        matched_task = [task for task in all_tasks if task.get_display_name() == task_name]
-
-        if not matched_task:
-            raise ValueError(f'Invalid task: {task_name}')
-
-        return matched_task[0](tokenizer=tokenizer, model=model)
+        for task in all_tasks:
+            if task.get_display_name() == task_name:
+                return task(tokenizer=tokenizer, model=model, device=device)
+        
+        raise ValueError(f'Invalid task: {task_name}')
 
     @staticmethod
     @abstractmethod
