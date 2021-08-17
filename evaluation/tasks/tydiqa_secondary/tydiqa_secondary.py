@@ -28,6 +28,7 @@ TEMPLATE = Template(
 class TyDiQADataset(Dataset):
     def __init__(self, tokenizer, target_langs):
         super().__init__()
+        assert tokenizer.pad_token == tokenizer.eos_token
         tydiqa = load_dataset("tydiqa", "secondary_task", split="validation")
         self.items = []
         
@@ -70,15 +71,8 @@ class TydiqaSecondaryTask(AutoTask):
     @staticmethod
     def get_display_name() -> str:
         return 'tydiqa_secondary'
-    
-    def configure_tokenizer(self):
-        # configure tokenizer
-        self.tokenizer.pad_token = self.tokenizer.eos_token
-        self.tokenizer.padding_side = "left"
 
     def evaluate(self) -> None:
-        self.configure_tokenizer()
-
         dataset = TyDiQADataset(self.tokenizer, target_langs=self.task_config["target_langs"])
 
         substring_matches = 0

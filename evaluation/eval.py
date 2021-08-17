@@ -58,18 +58,18 @@ def main():
     logger = get_logger()
     logger.info(f"Beginning evaluation on device {train_args.device}")
 
-    # # Load model & tokenizer
-    # logger.info("Loading model...")
-    # tokenizer = AutoTokenizer.from_pretrained(eval_args.tokenizer_name or eval_args.model_name_or_path)
-    # tokenizer.pad_token = tokenizer.eos_token
-    # tokenizer.padding_side = "left"
+    # Load model & tokenizer
+    logger.info("Loading model...")
+    tokenizer = AutoTokenizer.from_pretrained(eval_args.tokenizer_name or eval_args.model_name_or_path)
+    tokenizer.pad_token = tokenizer.eos_token
+    tokenizer.padding_side = "left"
 
-    # model = AutoModelForCausalLM.from_pretrained(
-    #     eval_args.model_name_or_path, pad_token_id=tokenizer.eos_token,
-    # )
-    # model.config.pad_token_id = model.config.eos_token_id
-    # model.resize_token_embeddings(len(tokenizer))
-    # model.to(device)
+    model = AutoModelForCausalLM.from_pretrained(
+        eval_args.model_name_or_path, pad_token_id=tokenizer.eos_token,
+    )
+    model.config.pad_token_id = model.config.eos_token_id
+    model.resize_token_embeddings(len(tokenizer))
+    model.to(device)
 
     # Exporting results
     tag = eval_args.tag or datetime.now().strftime("%y%m%d_%H%M%S")
@@ -80,8 +80,8 @@ def main():
         logger.info(f"Benchmarking {eval_task}...")
         task = AutoTask.from_task_name(
             eval_task, 
-            model_name_or_path=eval_args.model_name_or_path, 
-            tokenizer_name=eval_args.tokenizer_name,
+            model=model,
+            tokenizer=tokenizer,
             device=device, 
             is_english_only=eval_args.is_english_only,
         )

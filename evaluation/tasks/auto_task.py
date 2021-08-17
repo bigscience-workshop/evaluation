@@ -10,26 +10,49 @@ from evaluation.models import load_model
 
 class AutoTask(ABC):
     def __init__(
-        self, model_name_or_path, device, is_english_only, tokenizer_name,
+        self, 
+        device, 
+        is_english_only: bool, 
+        model=None, 
+        tokenizer=None,
+        model_name_or_path="",  
+        tokenizer_name="",
     ):
-        self.model = load_model(model_name_or_path).to(device)
-        self.tokenizer = AutoTokenizer.from_pretrained(tokenizer_name or model_name_or_path)
+        assert model or model_name_or_path, "Expected either `model` or `model_name_or_path`"
+        assert (
+            tokenizer or tokenizer_name or model_name_or_path
+        ), "Expected either `tokenizer` or `model_name_or_path` or `tokenizer_name`"
+        if model is None:
+            model = load_model(model_name_or_path).to(device)
+        self.model = model
+        if tokenizer is None:
+            tokenizer = AutoTokenizer.from_pretrained(tokenizer_name or model_name_or_path)
+        self.tokenizer = tokenizer
         self.device = device
         self.metrics = {}
         self.task_config = self.load_task_args(is_english_only)
 
     @classmethod
     def from_task_name(
-        cls, task_name: str, model_name_or_path, device, is_english_only, tokenizer_name="",
+        cls, 
+        task_name: str, 
+        device, 
+        is_english_only: bool, 
+        model=None, 
+        tokenizer=None,
+        model_name_or_path="",  
+        tokenizer_name="",
     ):
         all_tasks = cls.__subclasses__()
         for task in all_tasks:
             if task.get_display_name() == task_name:
                 return task(
-                    model_name_or_path=model_name_or_path, 
                     device=device, 
-                    tokenizer_name=tokenizer_name, 
                     is_english_only=is_english_only,
+                    model=model, 
+                    tokenizer=tokenizer,
+                    model_name_or_path=model_name_or_path,  
+                    tokenizer_name=tokenizer_name,
                 )
         
         raise ValueError(f'Invalid task: {task_name}')
