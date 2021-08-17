@@ -1,5 +1,5 @@
-from abc import ABC, abstractmethod
 import os
+from abc import ABC, abstractmethod
 
 from evaluation.utils.io import save_json
 
@@ -17,8 +17,8 @@ class AutoTask(ABC):
         for task in all_tasks:
             if task.get_display_name() == task_name:
                 return task(tokenizer=tokenizer, model=model, device=device)
-        
-        raise ValueError(f'Invalid task: {task_name}')
+
+        raise ValueError(f"Invalid task: {task_name}")
 
     @staticmethod
     @abstractmethod
