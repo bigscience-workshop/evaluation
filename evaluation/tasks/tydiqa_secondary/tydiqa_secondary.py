@@ -70,9 +70,16 @@ class TydiqaSecondaryTask(AutoTask):
     @staticmethod
     def get_display_name() -> str:
         return 'tydiqa_secondary'
+    
+    def configure_tokenizer(self):
+        # configure tokenizer
+        self.tokenizer.pad_token = self.tokenizer.eos_token
+        self.tokenizer.padding_side = "left"
 
     def evaluate(self) -> None:
-        dataset = TyDiQADataset(self.tokenizer, target_langs=["english"])
+        self.configure_tokenizer()
+
+        dataset = TyDiQADataset(self.tokenizer, target_langs=self.task_config["target_langs"])
 
         substring_matches = 0
         for sample in tqdm(dataset, desc=f'Evaluating {self.get_display_name()}'):
