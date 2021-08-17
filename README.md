@@ -75,5 +75,5 @@ A [simple benchmark](https://github.com/bigscience-workshop/Megatron-DeepSpeed/i
 [WMT](https://huggingface.co/datasets/wmt19) and [TyDi QA](https://huggingface.co/datasets/tydiqa)
 E.g.
 ```shell
-python3 -m evaluation.scripts.simple_benchmark  --model_name_or_path=gpt2
+python3 -m evaluation.eval  --model_name_or_path=gpt2  --eval_tasks tydiqa_secondary
 ```
