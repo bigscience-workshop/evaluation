@@ -59,9 +59,8 @@ class AutoTask(ABC):
 
     def load_task_args(self, is_english_only) -> Dict:
         task_root = os.path.join("evaluation", "tasks", self.get_display_name())        
-        if is_english_only:
-            return load_json(os.path.join(task_root, "english.json"))
-        return load_json(os.path.join(task_root, "multiligual.json"))
+        config_filename =  "english.json" if is_english_only else "multiligual.json"
+        return load_json(os.path.join(task_root, config_filename))
     
     @staticmethod
     @abstractmethod
