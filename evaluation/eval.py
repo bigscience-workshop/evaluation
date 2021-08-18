@@ -39,7 +39,7 @@ class EvaluationArguments:
         default=None,
         metadata={"help": "Identifier for the evaluation run."}
     )
-    is_english_only: Optional[bool] = field(
+    english_only: Optional[bool] = field(
         default=True,
         metadata={"help": "Whether to run evaluation in English only."}
     )
@@ -83,7 +83,7 @@ def main():
             model=model,
             tokenizer=tokenizer,
             device=device, 
-            is_english_only=eval_args.is_english_only,
+            english_only=eval_args.english_only,
         )
         set_seed(train_args.seed)
         task.evaluate()

@@ -12,7 +12,7 @@ class AutoTask(ABC):
     def __init__(
         self, 
         device, 
-        is_english_only: bool, 
+        english_only: bool, 
         model=None, 
         tokenizer=None,
         model_name_or_path="",  
@@ -30,14 +30,14 @@ class AutoTask(ABC):
         self.tokenizer = tokenizer
         self.device = device
         self.metrics = {}
-        self.task_config = self.load_task_args(is_english_only)
+        self.task_config = self.load_task_args(english_only)
 
     @classmethod
     def from_task_name(
         cls, 
         task_name: str, 
         device, 
-        is_english_only: bool, 
+        english_only: bool, 
         model=None, 
         tokenizer=None,
         model_name_or_path="",  
@@ -48,7 +48,7 @@ class AutoTask(ABC):
             if task.get_display_name() == task_name:
                 return task(
                     device=device, 
-                    is_english_only=is_english_only,
+                    english_only=english_only,
                     model=model, 
                     tokenizer=tokenizer,
                     model_name_or_path=model_name_or_path,  
@@ -57,9 +57,9 @@ class AutoTask(ABC):
         
         raise ValueError(f'Invalid task: {task_name}')
 
-    def load_task_args(self, is_english_only) -> Dict:
+    def load_task_args(self, english_only) -> Dict:
         task_root = os.path.join("evaluation", "tasks", self.get_display_name())        
-        config_filename =  "english.json" if is_english_only else "multiligual.json"
+        config_filename =  "english.json" if english_only else "multiligual.json"
         return load_json(os.path.join(task_root, config_filename))
     
     @staticmethod
