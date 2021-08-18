@@ -5,7 +5,7 @@ import os
 from transformers import AutoTokenizer
 
 from evaluation.utils.io import save_json, load_json
-from evaluation.models import load_model
+from evaluation.models.loader import load_model
 
 
 class AutoTask(ABC):
