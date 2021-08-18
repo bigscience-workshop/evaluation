@@ -11,51 +11,60 @@ from evaluation.models.loader import load_model
 class AutoTask(ABC):
     def __init__(
         self, 
+        model,
+        tokenizer,
         device, 
         english_only: bool, 
-        model=None, 
-        tokenizer=None,
-        model_name_or_path="",  
-        tokenizer_name="",
     ):
-        assert model or model_name_or_path, "Expected either `model` or `model_name_or_path`"
-        assert (
-            tokenizer or tokenizer_name or model_name_or_path
-        ), "Expected either `tokenizer` or `model_name_or_path` or `tokenizer_name`"
-        if model is None:
-            model = load_model(model_name_or_path).to(device)
         self.model = model
-        if tokenizer is None:
-            tokenizer = AutoTokenizer.from_pretrained(tokenizer_name or model_name_or_path)
         self.tokenizer = tokenizer
         self.device = device
         self.metrics = {}
         self.task_config = self.load_task_args(english_only)
+    
+    @classmethod
+    def _get_task(cls, task_name):
+        all_tasks = cls.__subclasses__()
+        for task in all_tasks:
+            if task.get_display_name() == task_name:
+                return task
+        raise ValueError(f'Invalid task: {task_name}')
 
     @classmethod
     def from_task_name(
         cls, 
         task_name: str, 
+        model, 
+        tokenizer,
         device, 
         english_only: bool, 
-        model=None, 
-        tokenizer=None,
-        model_name_or_path="",  
-        tokenizer_name="",
     ):
-        all_tasks = cls.__subclasses__()
-        for task in all_tasks:
-            if task.get_display_name() == task_name:
-                return task(
-                    device=device, 
-                    english_only=english_only,
-                    model=model, 
-                    tokenizer=tokenizer,
-                    model_name_or_path=model_name_or_path,  
-                    tokenizer_name=tokenizer_name,
-                )
-        
-        raise ValueError(f'Invalid task: {task_name}')
+        task = cls._get_task(task_name)
+        return task(
+            model=model, 
+            tokenizer=tokenizer,
+            device=device, 
+            english_only=english_only,
+        )
+    
+    @classmethod
+    def from_spec(
+        cls, 
+        task_name: str, 
+        model_name_or_path: str,  
+        tokenizer_name: str,
+        device, 
+        english_only: bool, 
+    ):
+        task = cls._get_task(task_name)
+        model = load_model(model_name_or_path)
+        tokenizer = AutoTokenizer.from_pretrained(tokenizer_name or model_name_or_path)
+        return task(
+            model=model, 
+            tokenizer=tokenizer,
+            device=device, 
+            english_only=english_only,
+        )
 
     def load_task_args(self, english_only) -> Dict:
         task_root = os.path.join("evaluation", "tasks", self.get_display_name())        
