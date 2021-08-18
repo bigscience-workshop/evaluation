@@ -2,7 +2,8 @@ from abc import ABC, abstractmethod
 from typing import Dict
 import os
 
-from transformers import AutoTokenizer
+import torch
+from transformers import AutoTokenizer, PreTrainedModel, PreTrainedTokenizerFast
 
 from evaluation.utils.io import save_json, load_json
 from evaluation.models.loader import load_model
@@ -11,9 +12,9 @@ from evaluation.models.loader import load_model
 class AutoTask(ABC):
     def __init__(
         self, 
-        model,
-        tokenizer,
-        device, 
+        model: PreTrainedModel,
+        tokenizer: PreTrainedTokenizerFast,
+        device: torch.device, 
         english_only: bool, 
     ):
         self.model = model
@@ -34,9 +35,9 @@ class AutoTask(ABC):
     def from_task_name(
         cls, 
         task_name: str, 
-        model, 
-        tokenizer,
-        device, 
+        model: PreTrainedModel, 
+        tokenizer: PreTrainedTokenizerFast,
+        device: torch.device, 
         english_only: bool, 
     ):
         task = cls._get_task(task_name)
@@ -53,7 +54,7 @@ class AutoTask(ABC):
         task_name: str, 
         model_name_or_path: str,  
         tokenizer_name: str,
-        device, 
+        device: torch.device, 
         english_only: bool, 
     ):
         task = cls._get_task(task_name)
