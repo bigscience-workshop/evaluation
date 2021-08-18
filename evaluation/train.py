@@ -38,11 +38,7 @@ class EvaluationArguments:
     tag: Optional[str] = field(
         default=None,
         metadata={"help": "Identifier for the evaluation run."}
-    )
-    english_only: Optional[bool] = field(
-        default=True,
-        metadata={"help": "Whether to run evaluation in English only."}
-    )
+    )    
 
 
 def main():
@@ -78,15 +74,9 @@ def main():
 
     for eval_task in eval_args.eval_tasks:
         logger.info(f"Benchmarking {eval_task}...")
-        task = AutoTask.from_task_name(
-            eval_task, 
-            model=model,
-            tokenizer=tokenizer,
-            device=device, 
-            english_only=eval_args.english_only,
-        )
+        task = AutoTask.from_task_name(eval_task, tokenizer=tokenizer, model=model, device=device)
         set_seed(train_args.seed)
-        task.evaluate()
+        task.train()
         task.save_metrics(output_dir, logger)
 
 
