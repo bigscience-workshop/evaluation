@@ -1,6 +1,6 @@
+import os
 from abc import ABC, abstractmethod
 from typing import Dict
-import os
 
 import torch
 from transformers import AutoTokenizer, PreTrainedModel, PreTrainedTokenizerFast
