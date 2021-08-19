@@ -6,7 +6,7 @@ from typing import List, Optional
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, HfArgumentParser, TrainingArguments, set_seed
 
-import evaluation.tasks  # noqa: F401; needed for AutoTask.__subclass__() to work correctly
+import evaluation.tasks  # noqa: F401
 from evaluation.tasks.auto_task import AutoTask
 from evaluation.utils.log import get_logger
 

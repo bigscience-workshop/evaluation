@@ -6,7 +6,7 @@ from typing import List, Optional
 import torch
 from transformers import AutoModelForCausalLM, AutoTokenizer, HfArgumentParser, TrainingArguments, set_seed
 
-import evaluation.tasks  # needed for AutoTask.__subclass__() to work correctly
+import evaluation.tasks  # noqa: F401
 from evaluation.tasks.auto_task import AutoTask
 from evaluation.utils.log import get_logger
 
@@ -28,6 +28,7 @@ class EvaluationArguments:
         default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name."}
     )
     tag: Optional[str] = field(default=None, metadata={"help": "Identifier for the evaluation run."})
+    english_only: Optional[bool] = field(default=True, metadata={"help": "Whether to run evaluation in English only."})
 
 
 def main():
@@ -64,9 +65,15 @@ def main():
 
     for eval_task in eval_args.eval_tasks:
         logger.info(f"Benchmarking {eval_task}...")
-        task = AutoTask.from_task_name(eval_task, tokenizer=tokenizer, model=model, device=device)
+        task = AutoTask.from_task_name(
+            eval_task,
+            model=model,
+            tokenizer=tokenizer,
+            device=device,
+            english_only=eval_args.english_only,
+        )
         set_seed(train_args.seed)
-        task.train()
+        task.evaluate()
         task.save_metrics(output_dir, logger)
 
 
