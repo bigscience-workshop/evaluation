@@ -1,0 +1,6 @@
+{
+    "pair": "kk-en",
+    "stride": 512,
+    "batch_size": 8,
+    "num_workers": 2
+}
