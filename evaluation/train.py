@@ -1,16 +1,11 @@
+import os
 from dataclasses import dataclass, field
 from datetime import datetime
-from typing import Optional, List
-import os
+from typing import List, Optional
 
 import torch
-from transformers import (
-    HfArgumentParser,
-    AutoTokenizer,
-    AutoModelForCausalLM,
-    TrainingArguments,
-    set_seed,
-)
+from transformers import AutoModelForCausalLM, AutoTokenizer, HfArgumentParser, TrainingArguments, set_seed
+
 import evaluation.tasks  # needed for AutoTask.__subclass__() to work correctly
 from evaluation.tasks.auto_task import AutoTask
 from evaluation.utils.log import get_logger
@@ -19,26 +14,20 @@ from evaluation.utils.log import get_logger
 @dataclass
 class EvaluationArguments:
     """
-        Arguments for any adjustable params in this evaluation script
+    Arguments for any adjustable params in this evaluation script
     """
+
     model_name_or_path: str = field(
         metadata={"help": "The model checkpoint that we want to evaluate, could be name or the path."}
     )
-    eval_tasks: List[str] = field(
-        metadata={"help": "A list of tasks to run the evaluation on, e.g. tydiqa_secondary"}
-    )
+    eval_tasks: List[str] = field(metadata={"help": "A list of tasks to run the evaluation on, e.g. tydiqa_secondary"})
     config_name: Optional[str] = field(
-        default=None,
-        metadata={"help": "Pretrained config name or path if not the same as model_name."}
+        default=None, metadata={"help": "Pretrained config name or path if not the same as model_name."}
     )
     tokenizer_name: Optional[str] = field(
-        default=None,
-        metadata={"help": "Pretrained tokenizer name or path if not the same as model_name."}
+        default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name."}
     )
-    tag: Optional[str] = field(
-        default=None,
-        metadata={"help": "Identifier for the evaluation run."}
-    )    
+    tag: Optional[str] = field(default=None, metadata={"help": "Identifier for the evaluation run."})
 
 
 def main():
@@ -46,8 +35,8 @@ def main():
     eval_args, train_args = parser.parse_args_into_dataclasses()
 
     if not eval_args.eval_tasks:
-        raise ValueError('Must provide at least one eval task!')
-    
+        raise ValueError("Must provide at least one eval task!")
+
     # initialize device
     device = torch.device(train_args.device)
 
@@ -61,7 +50,8 @@ def main():
     tokenizer.padding_side = "left"
 
     model = AutoModelForCausalLM.from_pretrained(
-        eval_args.model_name_or_path, pad_token_id=tokenizer.eos_token,
+        eval_args.model_name_or_path,
+        pad_token_id=tokenizer.eos_token,
     )
     model.config.pad_token_id = model.config.eos_token_id
     model.resize_token_embeddings(len(tokenizer))

@@ -27,14 +27,8 @@ class EvaluationArguments:
     tokenizer_name: Optional[str] = field(
         default=None, metadata={"help": "Pretrained tokenizer name or path if not the same as model_name."}
     )
-    tag: Optional[str] = field(
-        default=None,
-        metadata={"help": "Identifier for the evaluation run."}
-    )
-    english_only: Optional[bool] = field(
-        default=True,
-        metadata={"help": "Whether to run evaluation in English only."}
-    )
+    tag: Optional[str] = field(default=None, metadata={"help": "Identifier for the evaluation run."})
+    english_only: Optional[bool] = field(default=True, metadata={"help": "Whether to run evaluation in English only."})
 
 
 def main():
@@ -72,10 +66,10 @@ def main():
     for eval_task in eval_args.eval_tasks:
         logger.info(f"Benchmarking {eval_task}...")
         task = AutoTask.from_task_name(
-            eval_task, 
+            eval_task,
             model=model,
             tokenizer=tokenizer,
-            device=device, 
+            device=device,
             english_only=eval_args.english_only,
         )
         set_seed(train_args.seed)
