@@ -27,6 +27,7 @@ TEMPLATE = Template(
 class TyDiQADataset(Dataset):
     def __init__(self, tokenizer, target_langs):
         super().__init__()
+        assert tokenizer.pad_token == tokenizer.eos_token
         tydiqa = load_dataset("tydiqa", "secondary_task", split="validation")
         self.items = []
 
@@ -71,7 +72,7 @@ class TydiqaSecondaryTask(AutoTask):
         return "tydiqa_secondary"
 
     def evaluate(self) -> None:
-        dataset = TyDiQADataset(self.tokenizer, target_langs=["english"])
+        dataset = TyDiQADataset(self.tokenizer, target_langs=self.task_config["target_langs"])
 
         substring_matches = 0
         for sample in tqdm(dataset, desc=f"Evaluating {self.get_display_name()}"):
