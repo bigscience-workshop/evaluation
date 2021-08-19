@@ -1,11 +1,9 @@
 # Module for any additional processing required for the WMT dataset
 # HuggingFace dataset link: https://huggingface.co/datasets/wmt19
 import torch
-from torch.utils.data import Dataset, DataLoader
-from tqdm import tqdm
-
 from datasets import load_dataset
-from torch.utils.data import Dataset
+from torch.utils.data import DataLoader, Dataset
+from tqdm import tqdm
 
 from evaluation.tasks.auto_task import AutoTask
 
@@ -13,9 +11,7 @@ from evaluation.tasks.auto_task import AutoTask
 class WMTEnglishDataset(Dataset):
     def __init__(self, tokenizer, stride=512, max_len=1024, pair="kk-en"):
         super().__init__()
-        assert (
-            "en" in pair
-        ), f"Expected `pair` to contain English, but got {pair} instead"
+        assert "en" in pair, f"Expected `pair` to contain English, but got {pair} instead"
         wmt = load_dataset("wmt19", pair, split="validation")["translation"]
         text_list = [item["en"] for item in wmt]
         text = " ".join(text_list)
@@ -33,19 +29,16 @@ class WMTTask(AutoTask):
     @staticmethod
     def get_display_name() -> str:
         return "wmt"
-    
+
     def evaluate(self) -> None:
-        stride = self.config["stride"]
+        stride = self.task_config["stride"]
         dataset = WMTEnglishDataset(
-            self.tokenizer,
-            stride=stride,
-            max_len=self.model.config.n_positions,
-            pair=self.config["pair"]
+            self.tokenizer, stride=stride, max_len=self.model.config.n_positions, pair=self.task_config["pair"]
         )
         loader = DataLoader(
             dataset,
-            batch_size=self.config["pair"],
-            num_workers=self.config["num_workers"],
+            batch_size=self.task_config["batch_size"],
+            num_workers=self.task_config["num_workers"],
             shuffle=False,
             drop_last=True,
         )
