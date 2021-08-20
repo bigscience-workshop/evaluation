@@ -1,10 +1,11 @@
 # Module for any additional processing required for the TyDi QA dataset
 # HuggingFace dataset link: https://huggingface.co/datasets/piqa
 from datasets import load_dataset
-from evaluation.tasks.auto_task import AutoTask
 from jinja2 import Template
 from torch.utils.data import Dataset
 from tqdm import tqdm
+
+from evaluation.tasks.auto_task import AutoTask
 
 TEMPLATE = Template(
     """
