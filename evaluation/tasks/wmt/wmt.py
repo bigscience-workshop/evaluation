@@ -1,5 +1,7 @@
 # Module for any additional processing required for the WMT dataset
 # HuggingFace dataset link: https://huggingface.co/datasets/wmt19
+import os
+
 import torch
 from datasets import load_dataset
 from torch.utils.data import DataLoader, Dataset
@@ -35,10 +37,10 @@ class WMTTask(AutoTask):
         dataset = WMTEnglishDataset(
             self.tokenizer, stride=stride, max_len=self.model.config.n_positions, pair=self.task_config["pair"]
         )
+        # TODO: resolve conflict with tokenizer to support num_workers
         loader = DataLoader(
             dataset,
             batch_size=self.task_config["batch_size"],
-            num_workers=self.task_config["num_workers"],
             shuffle=False,
             drop_last=True,
         )
@@ -46,6 +48,7 @@ class WMTTask(AutoTask):
         for input_ids in tqdm(loader, desc=f"Evaluating {self.get_display_name()}"):
             input_ids = input_ids.to(self.device)
             target_ids = input_ids.clone()
+            # Exclude context tokens from loss computation
             target_ids[:, :-stride] = -100
             with torch.no_grad():
                 outputs = self.model(input_ids, labels=target_ids)
