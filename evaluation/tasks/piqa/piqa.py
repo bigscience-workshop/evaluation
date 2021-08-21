@@ -63,7 +63,7 @@ class PIQATask(AutoTask):
         dataset = PIQADataset(self.tokenizer)
 
         substring_matches = 0
-        for sample in tqdm(dataset):
+        for sample in tqdm(dataset, desc=f"Evaluating {self.get_display_name()}"):
             output = self.model.generate(
                 input_ids=sample["input_ids"].to(self.device),
                 attention_mask=sample["attention_mask"].to(self.device),
