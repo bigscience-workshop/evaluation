@@ -43,7 +43,7 @@ class WMTTask(AutoTask):
             drop_last=True,
         )
         log_likelihoods = []
-        for input_ids in tqdm(loader):
+        for input_ids in tqdm(loader, desc=f"Evaluating {self.get_display_name()}"):
             input_ids = input_ids.to(self.device)
             target_ids = input_ids.clone()
             target_ids[:, :-stride] = -100
