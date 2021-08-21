@@ -7,6 +7,7 @@ from tqdm import tqdm
 
 from evaluation.tasks.auto_task import AutoTask
 
+
 TEMPLATE = Template(
     """
 Given a goal and 2 solutions, choose the most appropriate solution.
