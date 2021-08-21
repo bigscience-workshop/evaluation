@@ -1,7 +1,5 @@
 # Module for any additional processing required for the WMT dataset
 # HuggingFace dataset link: https://huggingface.co/datasets/wmt19
-import os
-
 import torch
 from datasets import load_dataset
 from torch.utils.data import DataLoader, Dataset
