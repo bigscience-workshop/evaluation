@@ -3,13 +3,18 @@ Code and data for the [BigScience Evaluation WG](https://bigscience.huggingface.
 
 ## Quickstart
 
-To benchmark a baseline GPT-2 model with WMT and TyDiQA datasets, run
+To benchmark a baseline GPT-2 model with WMT and TyDiQA datasets on GPU, run
 
 ```shell
-python3 -m evaluation.eval --model_name_or_path gpt2 --eval_tasks wmt tydiqa_secondary --output_dir outputs
+python3 -m evaluation.eval \
+    --model_name_or_path gpt2 \
+    --eval_tasks wmt tydiqa_secondary \
+    --device cuda \
+    --output_dir outputs
 ```
 
 ## Setup
+
 1. Create virtual environment (one-time).
 
    ```shell
@@ -54,7 +59,7 @@ task = AutoTask.from_spec(
 
 ### Evaluation
 
-Every `AutoTask` subclass has a `.evaluate()` function wherein all evaluation logic resides, i.e. loading the dataset (and the dataloader, if necessary), and computing reporting metrics. At the end of the evaluation, metrics are saved as a class attribute via `task.metrics`.
+Every `AutoTask` subclass has a `.evaluate()` function wherein all evaluation logic resides, i.e. loading the dataset (and the dataloader, if necessary), and computing reporting metrics. At the end of the evaluation, metrics are saved as a class attribute in `task.metrics`. For more details on the full pipeline, refer to the main evaluation script, [`evaluation/eval.py`](evaluation/eval.py). 
 
 ## Contributing
 
