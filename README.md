@@ -33,6 +33,8 @@ python3 -m evaluation.eval \
    ```
 ## Tasks
 
+This project plans to support all datasets listed under `docs/datasets.md`.  The sections below detail task-independent inner-workings of this repository.
+
 ### AutoTask
 
 Every task/dataset lives as a submodule within `evaluation.tasks`. The core of these submodules inherit from `evaluation.tasks.auto_task.AutoTask`, which is a base class that houses all abstract functions, as well has holds `model`, `tokenizer`, and `task_config` as its attributes. 
