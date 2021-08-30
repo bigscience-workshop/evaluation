@@ -19,6 +19,8 @@ tensorflow = "2.5.0"
 torch = "1.9.0"
 tqdm = "4.62.0"
 transformers = "4.9.1"
+promptsource = {git = "https://git@github.com/bigscience-workshop/promptsource.git", rev = "main"}
+aiohttp = "^3.7.4"
 
 [tool.poetry.dev-dependencies]
 isort = "^5.9.3"
