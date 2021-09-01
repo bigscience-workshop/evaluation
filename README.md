@@ -1,6 +1,13 @@
 # BigScience Evaluation
 Code and data for the [BigScience Evaluation WG](https://bigscience.huggingface.co/en/#!pages/working-groups.md).
 
+## Upcoming Milestones for Contributors
+- September 1, 2021: Eval Engineering Subgroup release toy tasks/dummy code to define API
+- September 1, 2021: New task-based subgroups established and begin work
+- October 1, 2021: Finalize GitHub with all data and scripts for generating raw evaluation results
+- October 15, 2021: General meeting to discuss longer research project proposals for fall/spring 
+- October 15, 2021: Form subgroup on data presentation/visualization to create final report card
+
 ## Quickstart
 
 To benchmark a baseline GPT-2 model with WMT and TyDiQA datasets on GPU, run
