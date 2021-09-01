@@ -37,6 +37,7 @@ python3 -m evaluation.eval \
 
    ```shell
    python3 -m pip install -r requirements.txt
+   python3 -m pip install -r requirements-dev.txt
    ```
 ## Tasks
 
