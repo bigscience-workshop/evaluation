@@ -42,6 +42,8 @@ References:
 #    docs     (changes to documentation)
 #    test     (adding or refactoring tests; no production code change)
 #    chore    (updating grunt tasks etc; no production code change)
+#    build    (changes that affect the build system or external dependencies)
+#    ci       (changes to our CI configuration files and scripts)
 #    version  (version bump/new release; no production code change)
 #    debug    (Changes in debugging code/frameworks; no production code change)
 #    license  (Edits regarding licensing; no production code change)
