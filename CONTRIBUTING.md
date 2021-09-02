@@ -49,11 +49,13 @@ References:
 #    license  (Edits regarding licensing; no production code change)
 #    hack     (Temporary fix to make things move forward; please avoid)
 ```
-For example, one possible commit message would be `feature: implement lambada evaluation`.
+For example, one possible commit message would be `feat: implement lambada evaluation`.
+
 3. Write prompts to reformat the dataset to LM task if necessary (e.g. QA tasks)
    1. Submit prompts to the [promptsource](https://github.com/bigscience-workshop/promptsource/blob/main/CONTRIBUTING.md) repo
    2. Prompts are in jinja2 format 
    3. Try to have at least 3 prompts
+
 4. Run `make quality` at the roof of the repo to check for linting and code styling issues
 5. Run `make style` at the root of the repo to auto-format the code
 
