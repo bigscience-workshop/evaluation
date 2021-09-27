@@ -1,6 +1,6 @@
 import os
 from abc import ABC, abstractmethod
-from typing import Dict
+from typing import Dict, Optional
 
 import torch
 from transformers import AutoTokenizer, PreTrainedModel, PreTrainedTokenizerFast
@@ -16,12 +16,14 @@ class AutoTask(ABC):
         tokenizer: PreTrainedTokenizerFast,
         device: torch.device,
         english_only: bool,
+        data_dir: Optional[str] = None,
     ):
         self.model = model
         self.tokenizer = tokenizer
         self.device = device
         self.metrics = {}
         self.task_config = self.load_task_args(english_only)
+        self.data_dir = data_dir
 
     @classmethod
     def _get_task(cls, task_name):
@@ -39,6 +41,7 @@ class AutoTask(ABC):
         tokenizer: PreTrainedTokenizerFast,
         device: torch.device,
         english_only: bool,
+        data_dir: Optional[str] = None,
     ):
         task = cls._get_task(task_name)
         return task(
@@ -46,6 +49,7 @@ class AutoTask(ABC):
             tokenizer=tokenizer,
             device=device,
             english_only=english_only,
+            data_dir=data_dir,
         )
 
     @classmethod
@@ -56,6 +60,7 @@ class AutoTask(ABC):
         tokenizer_name: str,
         device: torch.device,
         english_only: bool,
+        data_dir: Optional[str] = None,
     ):
         task = cls._get_task(task_name)
         model = load_model(model_name_or_path)
@@ -65,6 +70,7 @@ class AutoTask(ABC):
             tokenizer=tokenizer,
             device=device,
             english_only=english_only,
+            data_dir=data_dir,
         )
 
     def load_task_args(self, english_only) -> Dict:

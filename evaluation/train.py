@@ -30,6 +30,8 @@ class EvaluationArguments:
     tag: Optional[str] = field(default=None, metadata={"help": "Identifier for the evaluation run."})
     english_only: Optional[bool] = field(default=True, metadata={"help": "Whether to run evaluation in English only."})
 
+    data_dir: Optional[str] = field(default=None, metadata={"help": "Path to the local dataset folder"})
+
 
 def main():
     parser = HfArgumentParser((EvaluationArguments, TrainingArguments))
@@ -37,6 +39,12 @@ def main():
 
     if not eval_args.eval_tasks:
         raise ValueError("Must provide at least one eval task!")
+
+    if "jigsaw_toxicity_pred" in eval_args.eval_tasks:
+        if eval_args.data_dir is None:
+            raise ValueError("Must provide data path for jigsaw_toxicity_pred")
+        if not os.path.exists(eval_args.data_dir):
+            raise ValueError("Data path for jigsaw_toxicity_pred does not exist")
 
     # initialize device
     device = torch.device(train_args.device)
@@ -71,6 +79,7 @@ def main():
             tokenizer=tokenizer,
             device=device,
             english_only=eval_args.english_only,
+            data_dir=eval_args.data_dir,
         )
         set_seed(train_args.seed)
         task.evaluate()
