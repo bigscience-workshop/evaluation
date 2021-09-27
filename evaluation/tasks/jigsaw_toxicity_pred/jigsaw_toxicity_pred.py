@@ -1,4 +1,3 @@
-import torch
 from datasets import load_dataset
 from jinja2 import Template
 from torch.utils.data import Dataset
