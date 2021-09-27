@@ -31,7 +31,7 @@ class EvaluationArguments:
     english_only: Optional[bool] = field(default=True, metadata={"help": "Whether to run evaluation in English only."})
 
     data_dir: Optional[str] = field(default=None, metadata={"help": "Path to the local dataset folder"})
-        
+
 
 def main():
     parser = HfArgumentParser((EvaluationArguments, TrainingArguments))
@@ -39,14 +39,18 @@ def main():
 
     if not eval_args.eval_tasks:
         raise ValueError("Must provide at least one eval task!")
-        
-    if 'jigsaw_toxicity_pred' in eval_args.eval_tasks:
+
+    if "jigsaw_toxicity_pred" in eval_args.eval_tasks:
         if eval_args.data_dir is None:
-            raise ValueError("Must provide data path for jigsaw_toxicity_pred. Data needs to be \
-                downloaded manually from Kaggle and saved into a local directory.")
+            raise ValueError(
+                "Must provide data path for jigsaw_toxicity_pred. Data needs to be \
+                downloaded manually from Kaggle and saved into a local directory."
+            )
         if not os.path.exists(eval_args.data_dir):
-            raise ValueError("Data path for jigsaw_toxicity_pred does not exist. Data needs to be \
-                downloaded manually from Kaggle and saved into a local directory.")
+            raise ValueError(
+                "Data path for jigsaw_toxicity_pred does not exist. Data needs to be \
+                downloaded manually from Kaggle and saved into a local directory."
+            )
 
     # initialize device
     device = torch.device(train_args.device)
