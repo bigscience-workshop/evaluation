@@ -1,5 +1,5 @@
-from datasets import load_dataset
 import torch
+from datasets import load_dataset
 from jinja2 import Template
 from torch.utils.data import Dataset
 from tqdm import tqdm
@@ -15,42 +15,37 @@ TEMPLATE = Template(
     """
 )
 
-prompt_dict = {0: ['no', 'false'], 1: ['yes', 'true']}
+prompt_dict = {0: ["no", "false"], 1: ["yes", "true"]}
 
 
 class ToxicityDataset(Dataset):
     def __init__(self, tokenizer, data_dir):
         super().__init__()
         assert tokenizer.pad_token == tokenizer.eos_token
-        toxicity_ds = load_dataset('jigsaw_toxicity_pred', data_dir=data_dir)
+        toxicity_ds = load_dataset("jigsaw_toxicity_pred", data_dir=data_dir)
         self.items = []
-        for sample in toxicity_ds['train']:
-                prompt = TEMPLATE.render(
-                    text=sample["comment_text"]
-                )
-                prompt = prompt.strip()
+        for sample in toxicity_ds["train"]:
+            prompt = TEMPLATE.render(text=sample["comment_text"])
+            prompt = prompt.strip()
 
-                inputs = tokenizer(
-                    prompt,
-                    padding=True,
-                    return_tensors="pt",
-                    truncation=True
-                )
-                self.items.append(
-                    {
-                        "prompt": prompt,
-                        "input_ids": inputs["input_ids"],
-                        "attention_mask": inputs["attention_mask"],
-                        "input_len": inputs["attention_mask"].shape[1],
-                        "target_answer": prompt_dict[1],
-                    }
-                )
+            inputs = tokenizer(prompt, padding=True, return_tensors="pt", truncation=True)
+            self.items.append(
+                {
+                    "prompt": prompt,
+                    "input_ids": inputs["input_ids"],
+                    "attention_mask": inputs["attention_mask"],
+                    "input_len": inputs["attention_mask"].shape[1],
+                    "target_answer": prompt_dict[1],
+                }
+            )
+
     def __len__(self):
         return len(self.items)
 
     def __getitem__(self, index):
         return self.items[index]
-    
+
+
 class ToxicityDatasetEval(AutoTask):
     @staticmethod
     def get_display_name() -> str:
