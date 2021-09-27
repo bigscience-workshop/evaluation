@@ -20,6 +20,8 @@ python3 -m evaluation.eval \
     --output_dir outputs
 ```
 
+Note: For toxicity dataset, you have to download the dataset manually from Kaggle [here](https://www.kaggle.com/c/jigsaw-toxic-comment-classification-challenge/data) and also pass the `data_dir` argument to the folder.
+
 ## Setup
 
 1. Create virtual environment (one-time).
@@ -64,6 +66,7 @@ task = AutoTask.from_spec(
     "tokenizer_name",
     device,
     english_only,
+    data_dir: Optional
 )
 ```
 
