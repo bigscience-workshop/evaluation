@@ -6,12 +6,11 @@ from evaluation.tasks.auto_task import AutoTask
 
 
 
-
 class LAMA_Trex_Dataset(Dataset):
     def __init__(self, tokenizer):
         super().__init__()
         #load trex dataset
-        lama = load_dataset("lama_trex","trex",split="train")
+        lama = load_dataset("lama","trex",split="train")
 
         self.items = []
 
@@ -60,7 +59,7 @@ class LAMA_Trex_Dataset(Dataset):
 class LAMA_Trex_Task(AutoTask):
     @staticmethod
     def get_display_name() -> str:
-        return "LAMA Trex"
+        return "lama_trex"
 
     def evaluate(self) -> None:
 
