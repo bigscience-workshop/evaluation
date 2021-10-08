@@ -33,6 +33,15 @@ class CrowSPairsDataset(Dataset):
         return self.items[index]
 
 
+def score_sentence(logits):
+    # Compute average log probability of each sub word
+    # following Nadeem, et al. (2020) for GPT-2
+    # https://arxiv.org/pdf/2004.09456.pdf
+    # See https://github.com/moinnadeem/StereoSet/blob/master/code/eval_generative_models.py#L98
+    # TODO: implement score as average log probability (using logits)
+    return 0
+
+
 class CrowSPairsTask(AutoTask):
     @staticmethod
     def get_display_name() -> str:
@@ -76,13 +85,8 @@ class CrowSPairsTask(AutoTask):
                 logits_sent1 = self.model(item["sent1"])["logits"]
                 logits_sent2 = self.model(item["sent2"])["logits"]
 
-            # Compute average log probability of each sub word
-            # following Nadeem, et al. (2020) for GPT-2
-            # https://arxiv.org/pdf/2004.09456.pdf
-            # See https://github.com/moinnadeem/StereoSet/blob/master/code/eval_generative_models.py#L98
-            # TODO: implement score as average log probability (using logits_sent{1,2})
-            score_sent1 = 0
-            score_sent2 = 0
+            score_sent1 = score_sentence(logits_sent1)
+            score_sent2 = score_sentence(logits_sent2)
 
             # Implement score for this item following:
             # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
