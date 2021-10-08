@@ -61,7 +61,8 @@ class CrowSPairsTask(AutoTask):
             # See https://github.com/moinnadeem/StereoSet/blob/master/code/eval_generative_models.py#L98
             # TODO: implement; check if this works for our model type as well
 
-            # TODO: implement score for this item
+            # TODO: implement score for this item following:
+            # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
 
         # TODO: implement aggregation of item scores into metric
 
