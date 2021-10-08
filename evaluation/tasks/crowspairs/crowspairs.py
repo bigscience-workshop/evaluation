@@ -80,7 +80,7 @@ class CrowSPairsTask(AutoTask):
 
         for item in tqdm(dataset, desc=f"Evaluating {self.get_display_name()}"):
             item = item.to(self.device)
-            # TODO: write evaluation logic
+
             with torch.no_grad():
                 logits_sent1 = self.model(item["sent1"])["logits"]
                 logits_sent2 = self.model(item["sent2"])["logits"]
