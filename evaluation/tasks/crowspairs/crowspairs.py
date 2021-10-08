@@ -11,6 +11,9 @@ class CrowSPairsDataset(Dataset):
     def __init__(self, tokenizer):
         super().__init__()
 
+        # TODO: maye implement using HuggingFace Datasets
+        # https://huggingface.co/datasets/crows_pairs
+
         # Load CrowS-Pairs dataset from URL
         url = "https://raw.githubusercontent.com/nyu-mll/crows-pairs/master/data/crows_pairs_anonymized.csv"
         df = pd.read_csv(url)
