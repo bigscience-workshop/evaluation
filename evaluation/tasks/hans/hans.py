@@ -127,7 +127,7 @@ class HANSTask(AutoTask):
         self.metrics["hans_overall_accuracy"] = accuracy / len(dataset) * 100
         for heuristic in dataset.heuristics:
             total = heuristic_ent_correct_count_dict[heuristic] + heuristic_ent_incorrect_count_dict[heuristic]
-            self.metrics["hans_{}_entailed_accuracy".format(heuristic)] = heuristic_ent_correct_count_dict[heuristic] / total * 100
+            self.metrics[f"hans_{heuristic}_entailed_accuracy"] = heuristic_ent_correct_count_dict[heuristic] / total * 100
             total = heuristic_nonent_correct_count_dict[heuristic] + heuristic_nonent_incorrect_count_dict[heuristic]
             self.metrics["hans_{}_nonentailed_accuracy".format(heuristic)] = heuristic_nonent_correct_count_dict[heuristic] / total * 100
         for subcase in dataset.subcases:
