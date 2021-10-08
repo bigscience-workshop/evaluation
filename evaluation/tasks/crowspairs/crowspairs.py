@@ -3,13 +3,25 @@ from tqdm import tqdm
 
 from evaluation.tasks.auto_task import AutoTask
 
+import pandas as pd
 
-class TemplateDataset(Dataset):
+
+class CrowSPairsDataset(Dataset):
     def __init__(self, *args, **kwargs):
         super().__init__()
-        # TODO: load and process dataset
-        # can use load_dataset() in HF datasets
-        self.items = []
+
+        # Load CrowS-Pairs dataset from URL
+        url = "https://raw.githubusercontent.com/nyu-mll/crows-pairs/master/data/crows_pairs_anonymized.csv"
+        df = pd.read_csv(url)
+        # sent1, sent2 are sent_more, sent_less resp. if direction is stereo
+        # otherwise the other way around
+        df["direction"] = df["stereo_antistereo"]
+        df["sent1"] = df["sent_less"]
+        df["sent2"] = df["sent_more"]
+        df.loc[df["direction"] == "stereo", "sent1"] = df["sent_more"]
+        df.loc[df["direction"] == "stereo", "sent2"] = df["sent_less"]
+        # Change dataframe to list of dictionaries
+        self.items = df[["sent1", "sent2", "direction", "bias_type"]].to_dict("records")
 
     def __len__(self):
         return len(self.items)
@@ -18,11 +30,10 @@ class TemplateDataset(Dataset):
         return self.items[index]
 
 
-class TemplateTask(AutoTask):
+class CrowSPairsTask(AutoTask):
     @staticmethod
     def get_display_name() -> str:
-        # TODO: replace some_task with proper display name
-        return "some_task"
+        return "CrowS-Pairs"
 
     def evaluate(self) -> None:
         """
