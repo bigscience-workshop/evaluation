@@ -29,7 +29,11 @@ class LAMA_Trex_Dataset(Dataset):
             triple = (sub_label, predicate_id, obj_label)
 
             # Tokenize and construct this sample
-            inputs = tokenizer(template, padding=True, return_tensors="pt",)
+            inputs = tokenizer(
+                template,
+                padding=True,
+                return_tensors="pt",
+            )
             if triple not in triples_added:
                 triples_added.add(triple)
                 self.items.append(
