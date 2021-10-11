@@ -69,7 +69,6 @@ class LAMA_Trex_Task(AutoTask):
                 attention_mask=sample["attention_mask"].to(self.device),
                 max_length=min(sample["input_len"] * 2, self.model.config.n_positions),
             )
-            prompt_len = len(sample["template"])
             decoded_output = self.tokenizer.decode(output[0], skip_special_tokens=True)
             prediction = decoded_output.split(".")[0].replace(sample["template"], "")
 
