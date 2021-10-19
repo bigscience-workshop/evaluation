@@ -42,7 +42,11 @@ def score_sentence(logits):
     # https://arxiv.org/pdf/2004.09456.pdf
     # See https://github.com/moinnadeem/StereoSet/blob/master/code/eval_generative_models.py#L98
     # TODO: implement score as average log probability (using logits)
-    return 0
+    output = torch.softmax(logits[0], dim=-1)
+    print(output.shape)
+    
+    average_token_probability = 0
+    return average_token_probability
 
 
 class CrowSPairsTask(AutoTask):
