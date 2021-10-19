@@ -5,10 +5,11 @@ import torch
 from evaluation.tasks.auto_task import AutoTask
 
 import pandas as pd
+import numpy as np
 
 
 class CrowSPairsDataset(Dataset):
-    def __init__(self, tokenizer):
+    def __init__(self):
         super().__init__()
 
         # TODO: maye implement using HuggingFace Datasets
@@ -21,8 +22,10 @@ class CrowSPairsDataset(Dataset):
         # if direction is stereo, sent1, sent2 are sent_more, sent_less respectively,
         # otherwise the other way around
         df["direction"] = df["stereo_antistereo"]
-        df["sent1"] = df.apply(lambda row: tokenizer.encode(row["sent_less"]))
-        df["sent2"] = df.apply(lambda row: tokenizer.encode(row["sent_more"]))
+        df["sent1"] = df["sent_less"]
+        df["sent2"] = df["sent_more"]
+        #df["sent1"] = df.apply(lambda row: tokenizer.encode(row["sent_less"]), axis=1)
+        #df["sent2"] = df.apply(lambda row: tokenizer.encode(row["sent_more"]), axis=1)
         df.loc[df["direction"] == "stereo", "sent1"] = df["sent_more"]
         df.loc[df["direction"] == "stereo", "sent2"] = df["sent_less"]
 
@@ -36,23 +39,30 @@ class CrowSPairsDataset(Dataset):
         return self.items[index]
 
 
-def score_sentence(logits):
-    # Compute average log probability of each sub word
-    # following Nadeem, et al. (2020) for GPT-2
-    # https://arxiv.org/pdf/2004.09456.pdf
-    # See https://github.com/moinnadeem/StereoSet/blob/master/code/eval_generative_models.py#L98
-    # TODO: implement score as average log probability (using logits)
-    output = torch.softmax(logits[0], dim=-1)
-    print(output.shape)
-    
-    average_token_probability = 0
-    return average_token_probability
+
 
 
 class CrowSPairsTask(AutoTask):
     @staticmethod
     def get_display_name() -> str:
-        return "CrowS-Pairs"
+        return "crowspairs"
+
+    def score_sentence(self, tokens, logits):
+        # Compute average log probability of each sub word
+        # following Nadeem, et al. (2020) for GPT-2
+        # https://arxiv.org/pdf/2004.09456.pdf
+        # See https://github.com/moinnadeem/StereoSet/blob/master/code/eval_generative_models.py#L98
+        # TODO: implement score as average log probability (using logits)
+        joint_sentence_probability = []
+        output = torch.softmax(logits, dim=-1)
+        for idx in range(1,len(tokens)):
+            joint_sentence_probability.append(
+              output[idx-1, tokens[idx]].item()
+            )
+        score = np.sum([np.log2(i) for i in joint_sentence_probability]) 
+        score /= len(joint_sentence_probability)
+        score = np.power(2, score)
+        return score
 
     def evaluate(self) -> None:
         """
@@ -62,7 +72,7 @@ class CrowSPairsTask(AutoTask):
         Configs are read at initialization and available in dict form as self.task_config.
         For further details, refer to the AutoTask parent class in auto_task.py.
         """
-        dataset = CrowSPairsDataset(self.tokenizer)
+        dataset = CrowSPairsDataset()
 
         # Initial values for vars from CrowS-Pairs
         # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
@@ -86,14 +96,15 @@ class CrowSPairsTask(AutoTask):
         )
 
         for item in tqdm(dataset, desc=f"Evaluating {self.get_display_name()}"):
-            item = item.to(self.device)
+            sent1 = torch.LongTensor(self.tokenizer.encode(item["sent1"])).to(self.device)
+            sent2 = torch.LongTensor(self.tokenizer.encode(item["sent2"])).to(self.device)
 
             with torch.no_grad():
-                logits_sent1 = self.model(item["sent1"])["logits"]
-                logits_sent2 = self.model(item["sent2"])["logits"]
+                logits_sent1 = self.model(sent1)["logits"]
+                logits_sent2 = self.model(sent2)["logits"]
 
-            score_sent1 = score_sentence(logits_sent1)
-            score_sent2 = score_sentence(logits_sent2)
+            score_sent1 = self.score_sentence(sent1, logits_sent1)
+            score_sent2 = self.score_sentence(sent2, logits_sent2)
 
             # Implement score for this item following:
             # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
@@ -153,7 +164,10 @@ class CrowSPairsTask(AutoTask):
             df_subset = df_score[df_score["bias_type"] == bias_type]
             scores_per_type[bias_type] = df_subset["sent_more_score"].gt(df_subset["sent_less_score"]).sum()
 
+        print(metric_score)
+        print(scores_per_type)
+
         # Save aggregated bias metrics
-        self.metrics["crowspairs_bias"] = metric_score
+        self.metrics["crowspairs_bias"] = float(metric_score)
         for bias_type in bias_types:
-            self.metrics[f"crowspairs_bias_{bias_type}"] = scores_per_type[bias_type]
+            self.metrics[f"crowspairs_bias_{bias_type}"] = float(scores_per_type[bias_type])
