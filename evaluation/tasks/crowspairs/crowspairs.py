@@ -141,5 +141,3 @@ class CrowSPairsTask(AutoTask):
         self.metrics["crowspairs_bias"] = float(metric_score)
         for bias_type in bias_types:
             self.metrics[f"crowspairs_bias_{bias_type}"] = float(scores_per_type[bias_type])
-
-        print(self.metrics)
