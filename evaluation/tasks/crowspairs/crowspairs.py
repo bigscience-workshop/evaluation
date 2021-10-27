@@ -119,7 +119,6 @@ class CrowSPairsTask(AutoTask):
                     "sent_less": sent_less,
                     "sent_more_score": sent_more_score,
                     "sent_less_score": sent_less_score,
-                    "score": pair_score,
                     "stereo_antistereo": item["direction"],
                     "bias_type": item["bias_type"],
                 },
