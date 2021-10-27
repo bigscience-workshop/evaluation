@@ -44,7 +44,8 @@ class CrowSPairsTask(AutoTask):
 
     @staticmethod
     def model_confidence(df_score):
-        """Returns average model confidence, which is the ratio between the sentence scores"""
+        """TODO: Returns average model confidence, which is the ratio between the sentence scores"""
+        raise NotImplementedError
         df_score["highest_score"] = df_score["sent_less_score"]
         df_score["lowest_score"] = df_score["sent_more_score"]
         df_score.loc[df_score["sent_more_score"] > df_score["sent_less_score"], "higest_score"] = df_score[
@@ -141,20 +142,20 @@ class CrowSPairsTask(AutoTask):
 
         # Aggregation of item scores into bias metric
         metric_scores = {}
-        average_confidence = {}
+        # average_confidence = {}
         metric_scores["all"] = self.metric_score(df_score)
-        average_confidence["all"] = self.model_confidence(df_score)
+        # average_confidence["all"] = self.model_confidence(df_score)
 
         # Metric score per bias_type
         bias_types = df_score["bias_type"].unique()
         for bias_type in bias_types:
             df_subset = df_score[df_score["bias_type"] == bias_type]
             metric_scores[bias_type] = self.metric_score(df_subset)
-            average_confidence[bias_type] = self.model_confidence(df_subset)
+            # average_confidence[bias_type] = self.model_confidence(df_subset)
 
         # Save aggregated bias metrics
         self.metrics["crowspairs_bias"] = float(metric_scores["all"])
-        self.metrics["crowspairs_confidence"] = float(average_confidence["all"])
+        # self.metrics["crowspairs_confidence"] = float(average_confidence["all"])
         for bias_type in bias_types:
             self.metrics[f"crowspairs_bias_{bias_type}"] = float(metric_scores[bias_type])
-            self.metrics[f"crowspairs_confidence_{bias_type}"] = float(average_confidence[bias_type])
+            # self.metrics[f"crowspairs_confidence_{bias_type}"] = float(average_confidence[bias_type])
