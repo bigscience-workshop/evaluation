@@ -56,7 +56,7 @@ class CrowSPairsTask(AutoTask):
         # https://arxiv.org/pdf/2004.09456.pdf
         # See https://github.com/moinnadeem/StereoSet/blob/master/code/eval_generative_models.py#L98
         # for an implementation example.
-        assert len(tokens) == len(logits) - 2
+        print(len(tokens), len(logits))
         joint_sentence_probability = []
         output = torch.softmax(logits, dim=-1)
         for idx in range(1, len(tokens)):
