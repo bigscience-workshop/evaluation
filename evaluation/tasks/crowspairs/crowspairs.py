@@ -157,4 +157,4 @@ class CrowSPairsTask(AutoTask):
         self.metrics["crowspairs_confidence"] = float(average_confidence["all"])
         for bias_type in bias_types:
             self.metrics[f"crowspairs_bias_{bias_type}"] = float(metric_scores[bias_type])
-            self.metrics[f"crowspairs_confidence_{bias_type}"] = float(model_confidence[bias_type])
+            self.metrics[f"crowspairs_confidence_{bias_type}"] = float(average_confidence[bias_type])
