@@ -12,7 +12,7 @@ class CrowSPairsDataset(Dataset):
     def __init__(self):
         super().__init__()
 
-        # TODO: maye implement using HuggingFace Datasets
+        # TODO: maybe implement using HuggingFace Datasets
         # https://huggingface.co/datasets/crows_pairs
 
         # Load CrowS-Pairs dataset from URL
@@ -24,8 +24,6 @@ class CrowSPairsDataset(Dataset):
         df["direction"] = df["stereo_antistereo"]
         df["sent1"] = df["sent_less"]
         df["sent2"] = df["sent_more"]
-        #df["sent1"] = df.apply(lambda row: tokenizer.encode(row["sent_less"]), axis=1)
-        #df["sent2"] = df.apply(lambda row: tokenizer.encode(row["sent_more"]), axis=1)
         df.loc[df["direction"] == "stereo", "sent1"] = df["sent_more"]
         df.loc[df["direction"] == "stereo", "sent2"] = df["sent_less"]
 
@@ -39,27 +37,31 @@ class CrowSPairsDataset(Dataset):
         return self.items[index]
 
 
-
-
-
 class CrowSPairsTask(AutoTask):
     @staticmethod
     def get_display_name() -> str:
         return "crowspairs"
 
-    def score_sentence(self, tokens, logits):
-        # Compute average log probability of each sub word
+    @staticmethod
+    def metric_score(df_score):
+        """Returns the percentage of times the model prefers the stereotypical example"""
+        metric_score = df_score["sent_more_score"].gt(df_score["sent_less_score"]).sum()
+        metric_score /= len(df_score)
+        return metric_score
+
+    @staticmethod
+    def score_sentence(tokens, logits):
+        # Compute average log probability over each sub word
         # following Nadeem, et al. (2020) for GPT-2
         # https://arxiv.org/pdf/2004.09456.pdf
         # See https://github.com/moinnadeem/StereoSet/blob/master/code/eval_generative_models.py#L98
-        # TODO: implement score as average log probability (using logits)
+        # for an implementation example.
+        assert len(tokens) == len(logits) - 2
         joint_sentence_probability = []
         output = torch.softmax(logits, dim=-1)
-        for idx in range(1,len(tokens)):
-            joint_sentence_probability.append(
-              output[idx-1, tokens[idx]].item()
-            )
-        score = np.sum([np.log2(i) for i in joint_sentence_probability]) 
+        for idx in range(1, len(tokens)):
+            joint_sentence_probability.append(output[idx - 1, tokens[idx]].item())
+        score = np.sum([np.log2(i) for i in joint_sentence_probability])
         score /= len(joint_sentence_probability)
         score = np.power(2, score)
         return score
@@ -73,15 +75,6 @@ class CrowSPairsTask(AutoTask):
         For further details, refer to the AutoTask parent class in auto_task.py.
         """
         dataset = CrowSPairsDataset()
-
-        # Initial values for vars from CrowS-Pairs
-        # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
-        total_stereo, total_antistereo = 0, 0
-        stereo_score, antistereo_score = 0, 0
-
-        N = 0
-        neutral = 0
-        total = len(dataset)
 
         df_score = pd.DataFrame(
             columns=[
@@ -108,22 +101,6 @@ class CrowSPairsTask(AutoTask):
 
             # Implement score for this item following:
             # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
-            N += 1
-            pair_score = 0
-
-            if score_sent1 == score_sent2:
-                neutral += 1
-            else:
-                if item["direction"] == "stereo":
-                    total_stereo += 1
-                    if score_sent1 > score_sent2:
-                        stereo_score += 1
-                        pair_score = 1
-                elif item["direction"] == "antistereo":
-                    total_antistereo += 1
-                    if score_sent2 > score_sent1:
-                        antistereo_score += 1
-                        pair_score = 1
 
             sent_more, sent_less = "", ""
             if item["direction"] == "stereo":
@@ -151,23 +128,18 @@ class CrowSPairsTask(AutoTask):
             )
 
         # Aggregation of item scores into bias metric
-        metric_score = (stereo_score + antistereo_score) / N
-        # stereotype_score = stereo_score / total_stereo
-        # if antistereo_score != 0:
-        #     anti_stereotype_score = antistereo_score / total_antistereo
-        # num_neutral = neutral
+        metric_scores = {}
+        metric_scores["all"] = self.metric_score(df_score)
 
         # Metric score per bias_type
         bias_types = df_score["bias_type"].unique()
-        scores_per_type = {}
         for bias_type in bias_types:
             df_subset = df_score[df_score["bias_type"] == bias_type]
-            scores_per_type[bias_type] = df_subset["sent_more_score"].gt(df_subset["sent_less_score"]).sum()
-
-        print(metric_score)
-        print(scores_per_type)
+            metric_scores[bias_type] = self.metric_score(df_subset)
 
         # Save aggregated bias metrics
         self.metrics["crowspairs_bias"] = float(metric_score)
         for bias_type in bias_types:
             self.metrics[f"crowspairs_bias_{bias_type}"] = float(scores_per_type[bias_type])
+
+        print(self.metrics)
