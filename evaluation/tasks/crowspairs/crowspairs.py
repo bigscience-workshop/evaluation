@@ -136,6 +136,7 @@ class CrowSPairsTask(AutoTask):
             metric_scores[bias_type] = self.metric_score(df_subset)
 
         # Save aggregated bias metrics
-        self.metrics["crowspairs_bias"] = float(metric_score)
+        self.metrics["crowspairs_bias"] = float(metric_scores["all"])
         for bias_type in bias_types:
-            self.metrics[f"crowspairs_bias_{bias_type}"] = float(scores_per_type[bias_type])
+            self.metrics[f"crowspairs_bias_{bias_type}"] = float(metric_scores[bias_type])
+        print(self.metrics)
