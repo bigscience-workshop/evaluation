@@ -65,6 +65,22 @@ class CrowSPairsTask(AutoTask):
         return metric_score
     
     @staticmethod
+    def score_sentence_perplexity(tokens, model):
+        # Score sentence perplexity
+        # https://huggingface.co/transformers/perplexity.html
+        nlls = []
+        for idx in range(0, len(tokens)):
+            input_tokens = tokens[:idx]
+            target_token = tokens[idx]
+            with torch.no_grad():
+                outputs = model(input_tokens, labels=target_token)
+                loss = outputs["loss"]
+            nlls.append(loss)
+        ppl = torch.exp(torch.stack(nnls).sum() / len(tokens))
+        return ppl
+            
+        
+    @staticmethod
     def score_sentence(tokens, logits):
         # Compute average log probability over all (sub-)words
         # following Nadeem, et al. (2020) for GPT-2
@@ -112,9 +128,9 @@ class CrowSPairsTask(AutoTask):
 
             #score_sent1 = self.score_sentence(sent1, output_sent1["logits"])
             #score_sent2 = self.score_sentence(sent2, output_sent2["logits"])
-            print(output_sent1)
-            score_sent1 = torch.exp(output_sent1["loss"])
-            score_sent2 = torch.exp(output_sent2["loss"])
+            #print(output_sent1)
+            score_sent1 = self.score_sentence_perplexity(sent1, self.model)
+            score_sent2 = self.score_sentence_perplexity(sent2, self.model)
 
             # Implement score for this item following:
             # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
