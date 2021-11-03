@@ -65,13 +65,16 @@ class CrowSPairsTask(AutoTask):
         return metric_score
     
     @staticmethod
-    def score_sentence_perplexity(tokens, model):
+    def score_sentence_perplexity(tokens, model, bos_token):
         # Score sentence perplexity
         # https://huggingface.co/transformers/perplexity.html
         nlls = []
         print(tokens)
         for idx in range(0, len(tokens)):
-            input_tokens = tokens[:idx]
+            if idx == 0:
+                input_tokens = [bos_token]
+            else:
+                input_tokens = tokens[:idx]
             target_token = tokens[idx]
             with torch.no_grad():
                 outputs = model(input_tokens, labels=target_token)
@@ -130,8 +133,8 @@ class CrowSPairsTask(AutoTask):
             #score_sent1 = self.score_sentence(sent1, output_sent1["logits"])
             #score_sent2 = self.score_sentence(sent2, output_sent2["logits"])
             #print(output_sent1)
-            score_sent1 = self.score_sentence_perplexity(sent1, self.model)
-            score_sent2 = self.score_sentence_perplexity(sent2, self.model)
+            score_sent1 = self.score_sentence_perplexity(sent1, self.model, self.tokenizer.bos_token)
+            score_sent2 = self.score_sentence_perplexity(sent2, self.model, self.tokenizer.bos_token)
 
             # Implement score for this item following:
             # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
