@@ -68,17 +68,20 @@ class CrowSPairsTask(AutoTask):
     def score_sentence_perplexity(tokens, model):
         # Score sentence perplexity
         # https://huggingface.co/transformers/perplexity.html
-        nlls = []
-        print(tokens)
-        for idx in range(0, len(tokens)):
-            input_tokens = tokens[:idx]
-#            target_token = tokens[idx]
-            with torch.no_grad():
-                outputs = model(input_tokens, labels=input_tokens)
-                loss = outputs["loss"]
-            nlls.append(loss)
-        ppl = torch.exp(torch.stack(nnls).sum() / len(tokens))
+        loss = model(tokens, labels=tokens)["loss"]
+        ppl = torch.exp(loss)
         return ppl
+#         nlls = []
+#         print(tokens)
+#         for idx in range(0, len(tokens)):
+#             input_tokens = tokens[:idx]
+# #            target_token = tokens[idx]
+#             with torch.no_grad():
+#                 outputs = model(input_tokens, labels=input_tokens)
+#                 loss = outputs["loss"]
+#             nlls.append(loss)
+#         ppl = torch.exp(torch.stack(nnls).sum() / len(tokens))
+#        return ppl
             
         
     @staticmethod
