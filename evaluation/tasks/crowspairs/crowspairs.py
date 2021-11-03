@@ -70,8 +70,8 @@ class CrowSPairsTask(AutoTask):
         # https://huggingface.co/transformers/perplexity.html
         nlls = []
         for idx in range(0, len(tokens)):
-            input_tokens = tokens[:idx]
-            target_token = tokens[idx]
+            input_tokens = tokens[:,:idx]
+            target_token = tokens[:,idx]
             with torch.no_grad():
                 outputs = model(input_tokens, labels=target_token)
                 loss = outputs["loss"]
