@@ -72,7 +72,7 @@ class CrowSPairsTask(AutoTask):
         print(tokens)
         for idx in range(0, len(tokens)):
             if idx == 0:
-                input_tokens = [bos_token]
+                input_tokens = torch.LongTensor([bos_token]).to(model.device)
             else:
                 input_tokens = tokens[:idx]
             target_token = tokens[idx]
