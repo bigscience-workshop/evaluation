@@ -132,9 +132,10 @@ class CrowSPairsTask(AutoTask):
 
             #score_sent1 = self.score_sentence(sent1, output_sent1["logits"])
             #score_sent2 = self.score_sentence(sent2, output_sent2["logits"])
-            #print(output_sent1)
-            score_sent1 = torch.exp(output_sent1["loss"])
-            score_sent2 = torch.exp(output_sent2["loss"])
+
+            # Calculating perplexity
+            score_sent1 = - torch.exp(output_sent1["loss"])
+            score_sent2 = - torch.exp(output_sent2["loss"])
 
             # Implement score for this item following:
             # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
