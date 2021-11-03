@@ -72,7 +72,7 @@ class CrowSPairsTask(AutoTask):
         print(tokens)
         for idx in range(0, len(tokens)):
             if idx == 0:
-                input_tokens = torch.LongTensor([bos_token]).to(model.device)
+                input_tokens = bos_token
             else:
                 input_tokens = tokens[:idx]
             target_token = tokens[idx]
@@ -133,8 +133,8 @@ class CrowSPairsTask(AutoTask):
             #score_sent1 = self.score_sentence(sent1, output_sent1["logits"])
             #score_sent2 = self.score_sentence(sent2, output_sent2["logits"])
             #print(output_sent1)
-            score_sent1 = self.score_sentence_perplexity(sent1, self.model, self.tokenizer.bos_token)
-            score_sent2 = self.score_sentence_perplexity(sent2, self.model, self.tokenizer.bos_token)
+            score_sent1 = self.score_sentence_perplexity(sent1, self.model, torch.LongTensor(self.tokenizer.encode([self.tokenizer.bos_token])).to(self.device))
+            score_sent2 = self.score_sentence_perplexity(sent2, self.model, torch.LongTensor(self.tokenizer.encode([self.tokenizer.bos_token])).to(self.device))
 
             # Implement score for this item following:
             # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
