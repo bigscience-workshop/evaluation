@@ -63,7 +63,7 @@ class CrowSPairsTask(AutoTask):
         metric_score = df_score["sent_more_score"].gt(df_score["sent_less_score"]).sum()
         metric_score /= len(df_score)
         return metric_score
-
+    
     @staticmethod
     def score_sentence(tokens, logits):
         # Compute average log probability over all (sub-)words
@@ -107,11 +107,13 @@ class CrowSPairsTask(AutoTask):
             sent2 = torch.LongTensor(self.tokenizer.encode(item["sent2"])).to(self.device)
 
             with torch.no_grad():
-                logits_sent1 = self.model(sent1)["logits"]
-                logits_sent2 = self.model(sent2)["logits"]
+                output_sent1 = self.model(sent1)
+                output_sent2 = self.model(sent2)
 
-            score_sent1 = self.score_sentence(sent1, logits_sent1)
-            score_sent2 = self.score_sentence(sent2, logits_sent2)
+            #score_sent1 = self.score_sentence(sent1, output_sent1["logits"])
+            #score_sent2 = self.score_sentence(sent2, output_sent2["logits"])
+            score_sent1 = torch.exp(output_sent1["loss"])
+            score_sent2 = torch.exp(output_sent2["loss"])
 
             # Implement score for this item following:
             # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
