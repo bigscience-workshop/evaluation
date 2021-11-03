@@ -127,14 +127,14 @@ class CrowSPairsTask(AutoTask):
             sent2 = torch.LongTensor(self.tokenizer.encode(item["sent2"])).to(self.device)
 
             with torch.no_grad():
-                output_sent1 = self.model(sent1)
-                output_sent2 = self.model(sent2)
+                output_sent1 = self.model(sent1, labels=sent1)
+                output_sent2 = self.model(sent2, labels=sent2)
 
             #score_sent1 = self.score_sentence(sent1, output_sent1["logits"])
             #score_sent2 = self.score_sentence(sent2, output_sent2["logits"])
             #print(output_sent1)
-            score_sent1 = self.score_sentence_perplexity(sent1, self.model)
-            score_sent2 = self.score_sentence_perplexity(sent2, self.model)
+            score_sent1 = torch.exp(output_sent1["loss"])
+            score_sent2 = torch.exp(output_sent2["loss"])
 
             # Implement score for this item following:
             # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
