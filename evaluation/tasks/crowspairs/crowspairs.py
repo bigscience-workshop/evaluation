@@ -27,7 +27,7 @@ class CrowSPairsDataset(Dataset):
         df.loc[df["direction"] == "stereo", "sent1"] = df["sent_more"]
         df.loc[df["direction"] == "stereo", "sent2"] = df["sent_less"]
 
-        # Change dataframe to list of dictionaries
+        # Convert dataframe to list of dictionaries
         self.items = df[["sent1", "sent2", "direction", "bias_type"]].to_dict("records")
 
     def __len__(self):
@@ -43,62 +43,11 @@ class CrowSPairsTask(AutoTask):
         return "crowspairs"
 
     @staticmethod
-    def model_confidence(df_score):
-        """TODO: Returns average model confidence, which is the ratio between the sentence scores"""
-        raise NotImplementedError
-        df_score["highest_score"] = df_score["sent_less_score"]
-        df_score["lowest_score"] = df_score["sent_more_score"]
-        df_score.loc[df_score["sent_more_score"] > df_score["sent_less_score"], "higest_score"] = df_score[
-            "sent_more_score"
-        ]
-        df_score.loc[df_score["sent_more_score"] > df_score["sent_less_score"], "lowest_score"] = df_score[
-            "sent_less_score"
-        ]
-        df_score["confidence"] = 1 - df_score["highest_score"] / df_score["lowest_score"]
-        return df_score["confidence"].mean()
-
-    @staticmethod
     def metric_score(df_score):
         """Returns the percentage of times the model prefers the stereotypical example"""
         metric_score = df_score["sent_more_score"].gt(df_score["sent_less_score"]).sum()
         metric_score /= len(df_score)
         return metric_score
-    
-    @staticmethod
-    def score_sentence_perplexity(tokens, model):
-        # Score sentence perplexity
-        # https://huggingface.co/transformers/perplexity.html
-        loss = model(tokens, labels=tokens)["loss"]
-        ppl = torch.exp(loss)
-        return ppl
-#         nlls = []
-#         print(tokens)
-#         for idx in range(0, len(tokens)):
-#             input_tokens = tokens[:idx]
-# #            target_token = tokens[idx]
-#             with torch.no_grad():
-#                 outputs = model(input_tokens, labels=input_tokens)
-#                 loss = outputs["loss"]
-#             nlls.append(loss)
-#         ppl = torch.exp(torch.stack(nnls).sum() / len(tokens))
-#        return ppl
-            
-        
-    @staticmethod
-    def score_sentence(tokens, logits):
-        # Compute average log probability over all (sub-)words
-        # following Nadeem, et al. (2020) for GPT-2
-        # https://arxiv.org/pdf/2004.09456.pdf
-        # See https://github.com/moinnadeem/StereoSet/blob/master/code/eval_generative_models.py#L98
-        # for an implementation example.
-        joint_sentence_probability = []
-        output = torch.softmax(logits, dim=-1)
-        for idx in range(0, len(tokens)):
-            joint_sentence_probability.append(output[idx, tokens[idx]].item())
-        score = np.sum([np.log2(i) for i in joint_sentence_probability])
-        score /= len(joint_sentence_probability)
-        score = np.power(2, score)
-        return score
 
     def evaluate(self) -> None:
         """
@@ -130,12 +79,9 @@ class CrowSPairsTask(AutoTask):
                 output_sent1 = self.model(sent1, labels=sent1)
                 output_sent2 = self.model(sent2, labels=sent2)
 
-            #score_sent1 = self.score_sentence(sent1, output_sent1["logits"])
-            #score_sent2 = self.score_sentence(sent2, output_sent2["logits"])
-
             # Calculating perplexity, assuming the loss is Cross Entropy Loss.
-            score_sent1 = - torch.exp(output_sent1["loss"])
-            score_sent2 = - torch.exp(output_sent2["loss"])
+            score_sent1 = -torch.exp(output_sent1["loss"])
+            score_sent2 = -torch.exp(output_sent2["loss"])
 
             # Implement score for this item following:
             # https://github.com/nyu-mll/crows-pairs/blob/master/metric.py#L213
@@ -166,20 +112,15 @@ class CrowSPairsTask(AutoTask):
 
         # Aggregation of item scores into bias metric
         metric_scores = {}
-        # average_confidence = {}
         metric_scores["all"] = self.metric_score(df_score)
-        # average_confidence["all"] = self.model_confidence(df_score)
 
         # Metric score per bias_type
         bias_types = df_score["bias_type"].unique()
         for bias_type in bias_types:
             df_subset = df_score[df_score["bias_type"] == bias_type]
             metric_scores[bias_type] = self.metric_score(df_subset)
-            # average_confidence[bias_type] = self.model_confidence(df_subset)
 
         # Save aggregated bias metrics
         self.metrics["crowspairs_bias"] = float(metric_scores["all"])
-        # self.metrics["crowspairs_confidence"] = float(average_confidence["all"])
         for bias_type in bias_types:
             self.metrics[f"crowspairs_bias_{bias_type}"] = float(metric_scores[bias_type])
-            # self.metrics[f"crowspairs_confidence_{bias_type}"] = float(average_confidence[bias_type])
