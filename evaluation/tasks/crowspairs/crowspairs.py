@@ -77,7 +77,7 @@ class CrowSPairsTask(AutoTask):
                 output_sent1 = self.model(sent1, labels=sent1)
                 output_sent2 = self.model(sent2, labels=sent2)
 
-            # Calculating perplexity, assuming the loss is Cross Entropy Loss.
+            # Calculating the negative perplexity, assuming the loss is Cross Entropy Loss.
             score_sent1 = -torch.exp(output_sent1["loss"])
             score_sent2 = -torch.exp(output_sent2["loss"])
 
