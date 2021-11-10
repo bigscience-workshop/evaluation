@@ -1,11 +1,9 @@
+import pandas as pd
+import torch
 from torch.utils.data import Dataset
 from tqdm import tqdm
-import torch
 
 from evaluation.tasks.auto_task import AutoTask
-
-import pandas as pd
-import numpy as np
 
 
 class CrowSPairsDataset(Dataset):
