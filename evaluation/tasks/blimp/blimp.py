@@ -12,7 +12,7 @@ class BLIMPDataset(Dataset):
         super().__init__()
 
         self.items = [
-            load_dataset("blimp", task, split="train") for task in blimp_task_names[:2]
+            load_dataset("blimp", task, split="train") for task in blimp_task_names
         ]
 
     def __len__(self):
