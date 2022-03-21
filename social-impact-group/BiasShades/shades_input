@@ -1,0 +1,21 @@
+<women> talk a lot.                 GENDER+AGE_PL   Stereotype: Gender, Age
+AGE:                                                girls talk a lot
+GENDER:                                             men talk a lot
+AGE+GENDER:                                         boys talk a lot
+
+<men> can't do the dishes.          GENDER+AGE_PL   Stereotype: Gender, Age
+AGE:                                                boys can't do the dishes
+GENDER:                                             women can't do the dishes
+AGE+GENDER:                                         girls can't do the dishes
+
+Why are all <men> obsessed by sex?  GENDER+AGE_PL   Stereotype: Gender
+GENDER:                                             why are all women obsessed by sex?
+
+<girls> like pink.                  GENDER+AGE_PL   Stereotype: Gender
+GENDER:                                             boys like pink
+
+A <woman>'s paradise is <PRO-POSS her> home. GENDER+AGE_SG_POSS    Stereotype: Gender
+GENDER:                                             a man's paradise is his home
+
+
+<DT-GEN-PL Les> <femmes> sont <GEN-PL-INFORMAL bavard-es>
