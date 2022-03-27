@@ -1,0 +1,6 @@
+{
+    "target_langs": ["english"],
+    "length_penalty": 1.0,
+    "num_beams": 5,
+    "max_generation_length": 300
+}
