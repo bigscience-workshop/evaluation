@@ -4,4 +4,4 @@ tensorflow==2.5.0
 torch==1.9.0
 tqdm==4.62.0
 transformers==4.9.1
-sacrebleu
+sacrebleu==2.0.0

@@ -1,5 +1,5 @@
-import sys
 import re
+import sys
 
 
 # how fine-grained should the categories be?  CLOTHING_HEAD vs CLOTHING
@@ -7,9 +7,8 @@ import re
 GENDER_PL = ["men", "women", "boys", "girls", "non-binary people", "gender-fluid"]
 GENDERAGE_PL = ["boys", "girls", "men", "women"]
 GENDER_POSS = ["his", "her", "their", "xe", "ze", "sie", "co", "ey"]
-HAIRCOLOR_PL = ["blondes", "brunettes", "redheads"]  #'people with blonde hair',
-# 'people \
-#       with brown hair', 'people with red hair', 'people with black hair']
+# 'people with blonde hair', 'people with brown hair', 'people with red hair', 'people with black hair'
+HAIRCOLOR_PL = ["blondes", "brunettes", "redheads"]
 HAIRCOLOR = ["blonde", "brunette", "redhead"]
 CLOTHING_HEAD_PL = ["glasses", "bow-ties", "ties", "scarves", "hats"]
 AGE_PL = ["kids", "children", "seniors", "adults"]
