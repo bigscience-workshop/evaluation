@@ -6,7 +6,7 @@ import torch
 from datasets import load_dataset
 from jinja2 import Template
 from sacrebleu.metrics import TER as _TER
-from torch.utils.data import DataLoader, Dataset
+from torch.utils.data import Dataset
 from tqdm import tqdm
 
 from evaluation.tasks.auto_task import AutoTask
