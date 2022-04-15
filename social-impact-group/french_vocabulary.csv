@@ -1,4 +1,10 @@
-fr,m,pl,n,inf,none,true,mecs
-fr,f,pl,n,inf,none,true,meufs
-fr,f,pl,pro,form,none,true,elles
-fr,m,pl,pro,form,none,true,ils
+mec,fr,m,sing,n,inf,none,true
+meuf,fr,f,sing,n,inf,none,true
+mecs,fr,m,pl,n,inf,none,true,
+meufs,fr,f,pl,n,inf,none,true
+elles,fr,f,pl,pro,form,none,true
+ils,fr,m,pl,pro,form,none,true,
+homme,fr,m,sing,n,form,none,true
+hommes,fr,m,pl,n,form,none,true
+femme,fr,f,sing,n,form,none,true
+femmes,fr,f,pl,n,form,none,true
