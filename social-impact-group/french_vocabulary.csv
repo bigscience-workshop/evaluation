@@ -1,16 +1,16 @@
 # word,language,characteristic value,plurality,pos,formality,familial
-mec,fr,m,sing,n,inf,true
-meuf,fr,f,sing,n,inf,true
-mecs,fr,m,pl,n,inf,true
-meufs,fr,f,pl,n,inf,true
-elle,fr,f,sing,pro,form,true
-lui,fr,m,sing,pro,form,true
-elles,fr,f,pl,pro,form,true
-ils,fr,m,pl,pro,form,true
-homme,fr,m,sing,n,form,true
-hommes,fr,m,pl,n,form,true
-femme,fr,f,sing,n,form,true
-femmes,fr,f,pl,n,form,true
+mec,fr,m,sing,n,inf,false
+meuf,fr,f,sing,n,inf,false
+mecs,fr,m,pl,n,inf,false
+meufs,fr,f,pl,n,inf,false
+elle,fr,f,sing,pro,form,false
+lui,fr,m,sing,pro,form,false
+elles,fr,f,pl,pro,form,false
+ils,fr,m,pl,pro,form,false
+homme,fr,m,sing,n,form,false
+hommes,fr,m,pl,n,form,false
+femme,fr,f,sing,n,form,false
+femmes,fr,f,pl,n,form,false
 fils,fr,m,sing,n,form,true
 fille,fr,f,sing,n,form,true
 
