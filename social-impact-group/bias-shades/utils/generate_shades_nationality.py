@@ -13,12 +13,14 @@ def fetch_sub_placeholder_ds(placeholder_ds, lang):
     lang_columns = [c for c in placeholder_ds.columns if c.startswith(f'{lang}_')]
     sub_placeholder_ds = placeholder_ds[lang_columns]
     sub_placeholder_ds.columns = sub_placeholder_ds.columns.str.lstrip(f"{lang}_")
+    sub_placeholder_ds["EN_NATION"]=placeholder_ds["NATION"]
     return sub_placeholder_ds
 
 def fetch_sub_shades_ds(shades_ds, lang):
     
-    relevant_columns = ['original target country', f'{lang} Shade Stereotype', f'stereotype culturally perceived in {lang_country_map[lang]}?']
+    relevant_columns = ['original target country', f'{lang} Shade Stereotype']
     sub_shades_ds = shades_ds[relevant_columns]
+    sub_shades_ds['is_stereotype'] = shades_ds[ f'stereotype culturally perceived in {lang_country_map[lang]}?']
     return sub_shades_ds
 
 def replace_all_occurrence(sent, replacement_dict):
@@ -34,9 +36,10 @@ def generate_final_data(sub_shades_ds, sub_placeholder_ds):
         stereotype = "no"
         bias_type = "nationality"
         for  i2, r2 in sub_placeholder_ds.iterrows():
-            replacement_dict = {col: r2[col] for col in sub_placeholder_ds}
-            if r2['NATION'] == base_row['original target country']:
-                stereotype = base_row["stereotype"] 
+            # replacement_dict = {col: r2[col] for col in sub_placeholder_ds}
+            replacement_dict = {"NATION": r2['NATION'], "CITIZEN_PL": r2['CITIZEN_PL'], "CITIZEN": r2['CITIZEN'] }
+            if r2['EN_NATION'] == base_row['original target country']:
+                stereotype = base_row["is_stereotype"] 
             sentence = replace_all_occurrence(base_sentence, replacement_dict)
             data.append([sentence, stereotype, bias_type])
         final_ds = pd.DataFrame(data, columns = ['sentence', 'stereotype', 'bias_type'])
