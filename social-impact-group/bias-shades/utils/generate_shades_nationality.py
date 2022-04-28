@@ -3,6 +3,7 @@
 """
 
 from audioop import bias
+from typing import final
 from docopt import docopt
 import pandas as pd
 import re
@@ -31,17 +32,23 @@ def replace_all_occurrence(sent, replacement_dict):
 def generate_final_data(sub_shades_ds, sub_placeholder_ds):
     
     data = []
+    translated_seed_list = []
     for i1, base_row in sub_shades_ds.iterrows():
         base_sentence = base_row[f'{lang} Shade Stereotype']
-        stereotype = "no"
         bias_type = "nationality"
         for  i2, r2 in sub_placeholder_ds.iterrows():
             replacement_dict = {col: r2[col] for col in sub_placeholder_ds}
             sentence = replace_all_occurrence(base_sentence, replacement_dict).rstrip('.')
+            nation = r2['NATION']
             if r2['ORIG_NATION'] == base_row['original target country']:
                 stereotype = base_row["is_stereotype"] 
-            data.append([sentence, stereotype, bias_type])
-        final_ds = pd.DataFrame(data, columns = ['sentence', 'is_stereotype', 'bias_type'])
+                translated_seed = sentence
+            else:
+                stereotype = "no"
+            data.append([sentence, stereotype, bias_type, nation])
+        translated_seed_list.extend(sub_placeholder_ds.shape[0]*[translated_seed])
+        final_ds = pd.DataFrame(data, columns = ['sentence', 'is_stereotype', 'bias_type', 'nation_entity'])
+        final_ds['translated_seed_sentence'] = translated_seed_list
     return final_ds
 
 
@@ -62,11 +69,3 @@ if __name__ == "__main__":
 
     final_ds = generate_final_data(sub_shades_ds, sub_placeholder_ds)
     final_ds.to_csv(targ_path, encoding='utf-8', index=False)
-
-
-
-
-
-
-
-    
