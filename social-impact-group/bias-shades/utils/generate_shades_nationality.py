@@ -7,13 +7,13 @@ from docopt import docopt
 import pandas as pd
 import re
 
-lang_country_map = {"HI":"India"}
+lang_country_map = {"HI":"India", "EN": "USA", "FR": "France"}
 
 def fetch_sub_placeholder_ds(placeholder_ds, lang):
     lang_columns = [c for c in placeholder_ds.columns if c.startswith(f'{lang}_')]
     sub_placeholder_ds = placeholder_ds[lang_columns]
-    sub_placeholder_ds.columns = sub_placeholder_ds.columns.str.lstrip(f"{lang}_")
-    sub_placeholder_ds["EN_NATION"]=placeholder_ds["NATION"]
+    sub_placeholder_ds.columns = sub_placeholder_ds.columns.str.removeprefix(f"{lang}_")
+    sub_placeholder_ds["ORIG_NATION"]=placeholder_ds["NATION"]
     return sub_placeholder_ds
 
 def fetch_sub_shades_ds(shades_ds, lang):
@@ -25,7 +25,7 @@ def fetch_sub_shades_ds(shades_ds, lang):
 
 def replace_all_occurrence(sent, replacement_dict):
     for occ, val in replacement_dict.items():
-        sent = re.sub(occ,val,sent)
+        sent = re.sub(rf"\b{occ}\b",val,sent)
     return sent
 
 def generate_final_data(sub_shades_ds, sub_placeholder_ds):
@@ -36,13 +36,12 @@ def generate_final_data(sub_shades_ds, sub_placeholder_ds):
         stereotype = "no"
         bias_type = "nationality"
         for  i2, r2 in sub_placeholder_ds.iterrows():
-            # replacement_dict = {col: r2[col] for col in sub_placeholder_ds}
-            replacement_dict = {"NATION": r2['NATION'], "CITIZEN_PL": r2['CITIZEN_PL'], "CITIZEN": r2['CITIZEN'] }
-            if r2['EN_NATION'] == base_row['original target country']:
+            replacement_dict = {col: r2[col] for col in sub_placeholder_ds}
+            sentence = replace_all_occurrence(base_sentence, replacement_dict).rstrip('.')
+            if r2['ORIG_NATION'] == base_row['original target country']:
                 stereotype = base_row["is_stereotype"] 
-            sentence = replace_all_occurrence(base_sentence, replacement_dict)
             data.append([sentence, stereotype, bias_type])
-        final_ds = pd.DataFrame(data, columns = ['sentence', 'stereotype', 'bias_type'])
+        final_ds = pd.DataFrame(data, columns = ['sentence', 'is_stereotype', 'bias_type'])
     return final_ds
 
 
