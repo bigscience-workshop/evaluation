@@ -14,8 +14,8 @@ with open("README.md") as readme_file:
 
 setup(
     name="evaluation",
-    python_requires=">=3.8.11",
-    version="0.1.0",
+    python_requires=">=3.8.11,<4.0",  # Some dependencies need explicit "<4.0"
+    version="0.1.1",
     url="https://github.com/bigscience-workshop/evaluation.git",
     author="Multiple Authors",
     author_email="xxx",
