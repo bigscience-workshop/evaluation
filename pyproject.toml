@@ -1,31 +1,32 @@
 [tool.black]
-line-length = 119
+line-length    = 119
 target-version = ['py38']
 
 [tool.pytest.ini_options]
 filterwarnings = ["ignore:the imp module is deprecated in favour of importlib:DeprecationWarning:tensorflow.*"]
 
 [tool.poetry]
-name = "evaluation"
-version = "0.1.0"
+name        = "evaluation"
+version     = "0.1.1"
 description = ""
-authors = ["Your Name <you@example.com>"]
+authors     = ["Your Name <you@example.com>"]
 
 [tool.poetry.dependencies]
-python = "^3.8.11"
-datasets = "1.11.0"
-Jinja2 = "3.0.1"
-tensorflow = "2.5.0"
-torch = "1.9.0"
-tqdm = "4.62.0"
-transformers = "4.9.1"
+python       = "^3.8.11"  # Some dependencies need explicit "<4.0"
+torch        = ">=1.9.0"
+tokenizers   = "!=0.12.0" # Just to be safe with a yanked version
+transformers = ">=4.9.1"
+datasets     = ">=1.11.0"
+Jinja2       = ">=3.0.1"
+sacrebleu    = ">=2.0.0"
+tqdm         = "4.62.0"
 
 [tool.poetry.dev-dependencies]
-isort = "^5.9.3"
-black = "^21.7b0"
-flake8 = "^3.9.2"
-pytest = "^6.2.4"
+isort  = ">=5.9.3"
+black  = ">=22.3.0" # For "click>=8.1.0"
+flake8 = ">=3.9.2"
+pytest = ">=6.2.4"
 
 [build-system]
-requires = ["poetry-core>=1.0.0", "setuptools", "wheel"]
+requires      = ["poetry-core>=1.0.0", "setuptools", "wheel"]
 build-backend = "setuptools.build_meta"
